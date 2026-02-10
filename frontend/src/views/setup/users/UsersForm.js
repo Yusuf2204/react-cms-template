@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { CForm, CFormInput, CButton } from '@coreui/react'
 import Select from 'react-select'
+import api from '../../../services/api'
 
 const roleOptions = [
-  { value: 'admin', label: 'Admin' },
-  { value: 'user', label: 'User' },
+  { value: 1, label: 'Admin' },
+  { value: 2, label: 'User' },
 ]
 
-const UsersForm = ({ user, onReset }) => {
+const UsersForm = ({ user, onReset, onSaved }) => {
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
-    role: '',
+    role_id: null,
   })
 
   useEffect(() => {
@@ -21,7 +22,14 @@ const UsersForm = ({ user, onReset }) => {
         name: user.name,
         email: user.email,
         password: '',
-        role: user.role || '',
+        role_id: user.role_id || null,
+      })
+    } else {
+      setForm({
+        name: '',
+        email: '',
+        password: '',
+        role_id: null,
       })
     }
   }, [user])
@@ -31,16 +39,30 @@ const UsersForm = ({ user, onReset }) => {
   }
 
   const handleRoleChange = (selected) => {
-    setForm({ ...form, role: selected ? selected.value : '' })
+    setForm({ ...form, role_id: selected ? selected.value : null })
   }
 
-  const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault()
 
     const payload = { ...form }
-    if (user && !form.password) delete payload.password
 
-    console.log(payload)
+    if (user && !payload.password) delete payload.password
+
+    if (user) {
+      await api.put(`/users/${user.id}`, payload)
+    } else {
+      await api.post('/users', payload)
+    }
+
+    setForm({
+      name: '',
+      email: '',
+      password: '',
+      role_id: null,
+    })
+
+    onSaved()
     onReset()
   }
 
@@ -78,7 +100,11 @@ const UsersForm = ({ user, onReset }) => {
           className="react-select-container"
           options={roleOptions}
           placeholder="Select role..."
-          value={roleOptions.find(r => r.value === form.role)}
+          value={
+            form.role_id
+              ? roleOptions.find(r => r.value === form.role_id)
+              : null
+          }
           onChange={handleRoleChange}
           isClearable
         />
