@@ -16,7 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api([
             HandleCors::class,
-            EnsureFrontendRequestsAreStateful::class,
         ]);
 
     })
