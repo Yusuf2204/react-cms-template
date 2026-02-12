@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { CRow, CCol, CCard, CCardBody, CCardHeader } from '@coreui/react'
+import { CRow, CCol, CCard, CCardBody, CCardHeader, CButton  } from '@coreui/react'
+import { CIcon } from '@coreui/icons-react';
+import { cilReload } from '@coreui/icons';
 import UsersTable from './UsersTable'
 import UsersForm from './UsersForm'
 import api from '../../../services/api'
@@ -45,7 +47,12 @@ const Users = () => {
     <CRow>
       <CCol md={7}>
         <CCard>
-          <CCardHeader>User List</CCardHeader>
+          <CCardHeader className="d-flex justify-content-between align-items-center">
+            User List
+            <CButton size="sm" color="secondary" onClick={fetchUsers}>
+             <CIcon icon={cilReload} />
+            </CButton>
+          </CCardHeader>
           <CCardBody>
             <UsersTable
               users={users}

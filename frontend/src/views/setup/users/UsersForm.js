@@ -3,11 +3,6 @@ import { CForm, CFormInput, CButton } from '@coreui/react'
 import Select from 'react-select'
 import api from '../../../services/api'
 
-const roleOptions = [
-  { value: 1, label: 'Admin' },
-  { value: 2, label: 'User' },
-]
-
 const UsersForm = ({ user, onReset, onSaved }) => {
   const [form, setForm] = useState({
     name: '',
@@ -15,6 +10,23 @@ const UsersForm = ({ user, onReset, onSaved }) => {
     password: '',
     role_id: null,
   })
+
+  const [roles, setRoles] = useState([])
+
+  const fetchRoles = async () => {
+    const res = await api.get('/roles')
+
+    const options = res.data.data.map(r => ({
+      value: r.id,
+      label: r.role_name,
+    }))
+
+    setRoles(options)
+  }
+
+  useEffect(() => {
+    fetchRoles()
+  }, [])
 
   useEffect(() => {
     if (user) {
@@ -42,11 +54,10 @@ const UsersForm = ({ user, onReset, onSaved }) => {
     setForm({ ...form, role_id: selected ? selected.value : null })
   }
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     const payload = { ...form }
-
     if (user && !payload.password) delete payload.password
 
     if (user) {
@@ -98,11 +109,11 @@ const handleSubmit = async (e) => {
         <Select
           classNamePrefix="react-select"
           className="react-select-container"
-          options={roleOptions}
+          options={roles}
           placeholder="Select role..."
           value={
             form.role_id
-              ? roleOptions.find(r => r.value === form.role_id)
+              ? roles.find(r => r.value === form.role_id)
               : null
           }
           onChange={handleRoleChange}
@@ -112,6 +123,10 @@ const handleSubmit = async (e) => {
 
       <CButton type="submit" color="primary">
         {user ? 'Update User' : 'Create User'}
+      </CButton>
+
+      <CButton type="button" color="secondary" onClick={onReset} className="ms-2">
+        Reset
       </CButton>
     </CForm>
   )

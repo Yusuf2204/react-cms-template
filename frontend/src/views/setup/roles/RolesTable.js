@@ -1,27 +1,45 @@
 import React from 'react'
-import { CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell } from '@coreui/react'
+import {
+  CTable,
+  CTableHead,
+  CTableRow,
+  CTableHeaderCell,
+  CTableBody,
+  CTableDataCell,
+  CButton,
+} from '@coreui/react'
 
-const dummyRoles = [
-  { id: 1, name: 'admin' },
-  { id: 2, name: 'user' },
-]
+const RolesTable = ({ roles, loading, onSelect, onDelete }) => {
+  if (loading) return <p>Loading...</p>
 
-const RolesTable = ({ onSelect }) => {
   return (
     <CTable hover>
       <CTableHead>
         <CTableRow>
           <CTableHeaderCell>Role Name</CTableHeaderCell>
+          <CTableHeaderCell width={120}>Action</CTableHeaderCell>
         </CTableRow>
       </CTableHead>
+
       <CTableBody>
-        {dummyRoles.map(r => (
-          <CTableRow
-            key={r.id}
-            onClick={() => onSelect(r)}
-            style={{ cursor: 'pointer' }}
-          >
-            <CTableDataCell>{r.name}</CTableDataCell>
+        {roles.map((r) => (
+          <CTableRow key={r.id}>
+            <CTableDataCell
+              onClick={() => onSelect(r)}
+              style={{ cursor: 'pointer' }}
+            >
+              {r.role_name}
+            </CTableDataCell>
+
+            <CTableDataCell>
+              <CButton
+                size="sm"
+                color="danger"
+                onClick={() => onDelete(r.id)}
+              >
+                Delete
+              </CButton>
+            </CTableDataCell>
           </CTableRow>
         ))}
       </CTableBody>
