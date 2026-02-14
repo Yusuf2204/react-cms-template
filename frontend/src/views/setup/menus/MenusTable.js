@@ -6,16 +6,12 @@ import {
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
+  CButton,
 } from '@coreui/react'
 
-const dummyMenus = [
-  { id: 1, name: 'Dashboard', path: '/dashboard', parent: null },
-  { id: 2, name: 'Setup', path: '/setup', parent: null },
-  { id: 3, name: 'Users', path: '/setup/users', parent: 2 },
-  { id: 4, name: 'Roles', path: '/setup/roles', parent: 2 },
-]
+const MenusTable = ({ menus, loading, onSelect, onDelete }) => {
+  if (loading) return <p>Loading...</p>
 
-const MenusTable = ({ onSelect }) => {
   return (
     <CTable hover>
       <CTableHead>
@@ -23,18 +19,25 @@ const MenusTable = ({ onSelect }) => {
           <CTableHeaderCell>Name</CTableHeaderCell>
           <CTableHeaderCell>Path</CTableHeaderCell>
           <CTableHeaderCell>Parent</CTableHeaderCell>
+          <CTableHeaderCell>Order</CTableHeaderCell>
+          <CTableHeaderCell>Action</CTableHeaderCell>
         </CTableRow>
       </CTableHead>
+
       <CTableBody>
-        {dummyMenus.map(m => (
-          <CTableRow
-            key={m.id}
-            onClick={() => onSelect(m)}
-            style={{ cursor: 'pointer' }}
-          >
-            <CTableDataCell>{m.name}</CTableDataCell>
-            <CTableDataCell>{m.path}</CTableDataCell>
-            <CTableDataCell>{m.parent ?? '-'}</CTableDataCell>
+        {menus.map(m => (
+          <CTableRow key={m.id}>
+            <CTableDataCell onClick={() => onSelect(m)} style={{ cursor: 'pointer' }}>
+              {m.menu_name}
+            </CTableDataCell>
+            <CTableDataCell>{m.menu_path}</CTableDataCell>
+            <CTableDataCell>{m.parent?.menu_name || '-'}</CTableDataCell>
+            <CTableDataCell>{m.menu_order}</CTableDataCell>
+            <CTableDataCell>
+              <CButton size="sm" color="danger" onClick={() => onDelete(m.id)}>
+                Delete
+              </CButton>
+            </CTableDataCell>
           </CTableRow>
         ))}
       </CTableBody>

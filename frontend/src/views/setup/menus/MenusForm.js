@@ -1,36 +1,40 @@
 import React, { useEffect, useState } from 'react'
 import { CForm, CFormInput, CButton } from '@coreui/react'
 import Select from 'react-select'
+import api from '../../../services/api'
 
-const parentOptions = [
-  { value: null, label: 'Top Level' },
-  { value: 1, label: 'Dashboard' },
-  { value: 2, label: 'Setup' },
-]
-
-const iconOptions = [
-  { value: 'cil-speedometer', label: 'Speedometer' },
-  { value: 'cil-user', label: 'User' },
-  { value: 'cil-settings', label: 'Settings' },
-  { value: 'cil-list', label: 'List' },
-  { value: 'cil-folder', label: 'Folder' },
-]
-
-const MenusForm = ({ menu, onReset }) => {
+const MenusForm = ({ menu, menus, onReset, onSaved }) => {
   const [form, setForm] = useState({
-    name: '',
-    path: '',
-    parent: null,
-    icon: '',
+    menu_name: '',
+    menu_path: '',
+    menu_icon: '',
+    menu_parent_id: null,
+    menu_order: 0,
   })
+
+  const parentOptions = menus
+    .filter(m => !menu || m.id !== menu.id)
+    .map(m => ({
+      value: m.id,
+      label: m.menu_name,
+    }))
 
   useEffect(() => {
     if (menu) {
       setForm({
-        name: menu.name,
-        path: menu.path,
-        parent: menu.parent,
-        icon: menu.icon || '',
+        menu_name: menu.menu_name,
+        menu_path: menu.menu_path,
+        menu_icon: menu.menu_icon || '',
+        menu_parent_id: menu.menu_parent_id || null,
+        menu_order: menu.menu_order || 0,
+      })
+    } else {
+      setForm({
+        menu_name: '',
+        menu_path: '',
+        menu_icon: '',
+        menu_parent_id: null,
+        menu_order: 0,
       })
     }
   }, [menu])
@@ -39,17 +43,20 @@ const MenusForm = ({ menu, onReset }) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleParentChange = (opt) => {
-    setForm({ ...form, parent: opt ? opt.value : null })
+  const handleParentChange = (selected) => {
+    setForm({ ...form, menu_parent_id: selected ? selected.value : null })
   }
 
-  const handleIconChange = (opt) => {
-    setForm({ ...form, icon: opt ? opt.value : '' })
-  }
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log(form)
+
+    if (menu) {
+      await api.put(`/menus/${menu.id}`, form)
+    } else {
+      await api.post('/menus', form)
+    }
+
+    onSaved()
     onReset()
   }
 
@@ -57,16 +64,24 @@ const MenusForm = ({ menu, onReset }) => {
     <CForm onSubmit={handleSubmit}>
       <CFormInput
         label="Menu Name"
-        name="name"
-        value={form.name}
+        name="menu_name"
+        value={form.menu_name}
         onChange={handleChange}
         className="mb-3"
       />
 
       <CFormInput
-        label="Path URL"
-        name="path"
-        value={form.path}
+        label="Path"
+        name="menu_path"
+        value={form.menu_path}
+        onChange={handleChange}
+        className="mb-3"
+      />
+
+      <CFormInput
+        label="Icon"
+        name="menu_icon"
+        value={form.menu_icon}
         onChange={handleChange}
         className="mb-3"
       />
@@ -74,29 +89,34 @@ const MenusForm = ({ menu, onReset }) => {
       <div className="mb-3">
         <label className="form-label">Parent Menu</label>
         <Select
-          className="react-select-container"
           classNamePrefix="react-select"
+          className="react-select-container"
           options={parentOptions}
-          value={parentOptions.find(p => p.value === form.parent)}
+          value={
+            form.menu_parent_id
+              ? parentOptions.find(o => o.value === form.menu_parent_id)
+              : null
+          }
           onChange={handleParentChange}
           isClearable
         />
       </div>
 
-      <div className="mb-4">
-        <label className="form-label">Icon</label>
-        <Select
-          className="react-select-container"
-          classNamePrefix="react-select"
-          options={iconOptions}
-          value={iconOptions.find(i => i.value === form.icon)}
-          onChange={handleIconChange}
-          isClearable
-        />
-      </div>
+      <CFormInput
+        label="Order"
+        name="menu_order"
+        type="number"
+        value={form.menu_order}
+        onChange={handleChange}
+        className="mb-3"
+      />
 
-      <CButton type="submit" color="primary">
+      <CButton color="primary" className="me-2" type="submit">
         {menu ? 'Update Menu' : 'Create Menu'}
+      </CButton>
+
+      <CButton color="secondary" type="button" onClick={onReset}>
+        Reset
       </CButton>
     </CForm>
   )
