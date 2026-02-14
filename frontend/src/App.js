@@ -10,6 +10,9 @@ import PrivateRoute from './components/PrivateRoute'
 // We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
 
+// routes config
+import api from './services/api'
+
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
@@ -23,19 +26,31 @@ const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
 
+  const checkAuth = async () => {
+    try {
+      await api.get('/me')
+    } catch {
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
+  }
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
+    const theme =
+      urlParams.get('theme') &&
+      urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
+
     if (theme) {
       setColorMode(theme)
+    } else if (!isColorModeSet()) {
+      setColorMode(storedTheme)
     }
 
-    if (isColorModeSet()) {
-      return
+    if (localStorage.getItem('token')) {
+      checkAuth()
     }
-
-    setColorMode(storedTheme)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <HashRouter>

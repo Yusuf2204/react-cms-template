@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CCard,
   CCardBody,
@@ -7,23 +7,38 @@ import {
   CFormInput,
   CButton,
 } from '@coreui/react'
+import api from '../../../services/api'
 
 const Changepassword = () => {
-  const [form, setForm] = useState({
-    email: 'user@mail.com',
-    oldPassword: '',
-    newPassword: '',
-  })
+  const [email, setEmail] = useState('')
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+  useEffect(() => {
+    const loadMe = async () => {
+      const res = await api.get('/me')
+      setEmail(res.data.data.email)
+    }
 
-  const handleSubmit = (e) => {
+    loadMe()
+  }, [])
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    console.log(form) // nanti API
-    setForm({ ...form, oldPassword: '', newPassword: '' })
+    try {
+      await api.post('/change-password', {
+        old_password: oldPassword,
+        new_password: newPassword,
+      })
+
+      alert('Password updated')
+
+      setOldPassword('')
+      setNewPassword('')
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed')
+    }
   }
 
   return (
@@ -33,7 +48,7 @@ const Changepassword = () => {
         <CForm onSubmit={handleSubmit}>
           <CFormInput
             label="Email"
-            value={form.email}
+            value={email}
             readOnly
             className="mb-3"
           />
@@ -41,18 +56,16 @@ const Changepassword = () => {
           <CFormInput
             type="password"
             label="Old Password"
-            name="oldPassword"
-            value={form.oldPassword}
-            onChange={handleChange}
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
             className="mb-3"
           />
 
           <CFormInput
             type="password"
             label="New Password"
-            name="newPassword"
-            value={form.newPassword}
-            onChange={handleChange}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
             className="mb-4"
           />
 

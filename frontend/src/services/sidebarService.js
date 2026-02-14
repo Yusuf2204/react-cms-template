@@ -1,5 +1,17 @@
 import { CNavItem, CNavGroup } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import * as icons from '@coreui/icons'
 import api from './api'
+
+const resolveIcon = (iconName) => {
+  if (!iconName) return null
+
+  const icon = icons[iconName]
+
+  if (!icon) return null
+
+  return <CIcon icon={icon} className="nav-icon" />
+}
 
 const buildNav = (menus) =>
   menus.map(menu =>
@@ -7,12 +19,14 @@ const buildNav = (menus) =>
       ? {
           component: CNavGroup,
           name: menu.menu_name,
+          icon: resolveIcon(menu.menu_icon),
           items: buildNav(menu.children),
         }
       : {
           component: CNavItem,
           name: menu.menu_name,
           to: menu.menu_path,
+          icon: resolveIcon(menu.menu_icon),
         }
   )
 

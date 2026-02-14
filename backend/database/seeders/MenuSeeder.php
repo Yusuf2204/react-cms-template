@@ -15,12 +15,18 @@ class MenuSeeder extends Seeder
     {
         $dashboard = Menus::create([
             'menu_name' => 'Dashboard',
-            'menu_path' => '/dashboard'
+            'menu_path' => '/dashboard',
+            'menu_icon' => 'cilHamburgerMenu',
+            'menu_parent_id' => null,
+            'menu_order' => 0
         ]);
 
         $setup = Menus::create([
             'menu_name' => 'Setup',
-            'menu_path' => '/setup'
+            'menu_path' => '/setup',
+            'menu_icon' => 'cilSettings',
+            'menu_parent_id' => null,
+            'menu_order' => 1
         ]);
 
         Menus::insert([

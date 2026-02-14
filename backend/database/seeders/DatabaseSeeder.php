@@ -20,16 +20,17 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-            'password' => '123456', // password akan otomatis di-hash karena ada cast di model
-        ]);
-
         $this->call([
             RoleSeeder::class,
             MenuSeeder::class,
             RoleMenuSeeder::class,
+        ]);
+
+        User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
+            'password' => '123456', // password akan otomatis di-hash karena ada cast di model
+            'role_id' => 1
         ]);
     }
 }

@@ -23,4 +23,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('menus-tree', [MenuController::class, 'tree']);
     Route::get('role-menus/{role}', [RoleMenuController::class, 'show']);
     Route::post('role-menus/{role}', [RoleMenuController::class, 'store']);
+    Route::post('change-password', [UserController::class, 'changePassword']);
 });
