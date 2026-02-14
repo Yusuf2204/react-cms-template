@@ -26,10 +26,21 @@ const Login = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      navigate('/dashboard')
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) return
+
+      try {
+        await api.get('/me')
+        navigate('/dashboard')
+      } catch {
+        localStorage.removeItem('token')
+      }
     }
+
+    checkAuth()
   }, [])
+
 
   const handleLogin = async (e) => {
     e.preventDefault()
