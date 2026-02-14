@@ -8,12 +8,7 @@ import {
   CTableDataCell,
 } from '@coreui/react'
 
-const dummyRoles = [
-  { id: 1, name: 'admin' },
-  { id: 2, name: 'user' },
-]
-
-const RolepermissionsTables = ({ onSelect }) => {
+const RolepermissionsTable = ({ roles, onSelect }) => {
   return (
     <CTable hover>
       <CTableHead>
@@ -22,13 +17,13 @@ const RolepermissionsTables = ({ onSelect }) => {
         </CTableRow>
       </CTableHead>
       <CTableBody>
-        {dummyRoles.map(r => (
+        {roles.map(r => (
           <CTableRow
             key={r.id}
             onClick={() => onSelect(r)}
             style={{ cursor: 'pointer' }}
           >
-            <CTableDataCell>{r.name}</CTableDataCell>
+            <CTableDataCell>{r.role_name}</CTableDataCell>
           </CTableRow>
         ))}
       </CTableBody>
@@ -36,4 +31,4 @@ const RolepermissionsTables = ({ onSelect }) => {
   )
 }
 
-export default RolepermissionsTables
+export default RolepermissionsTable

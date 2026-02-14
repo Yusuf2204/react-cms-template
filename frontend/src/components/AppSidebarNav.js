@@ -5,9 +5,15 @@ import PropTypes from 'prop-types'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 
-import { CBadge, CNavLink, CSidebarNav } from '@coreui/react'
+import { CBadge, CNavLink, CSidebarNav, CNavItem, CNavGroup } from '@coreui/react'
 
-export const AppSidebarNav = ({ items }) => {
+export const AppSidebarNav = ({ items }) => {4
+
+  const componentMap = {
+    CNavItem,
+    CNavGroup,
+  }
+
   const navLink = (name, icon, badge, indent = false) => {
     return (
       <>
@@ -29,14 +35,13 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navItem = (item, index, indent = false) => {
-    const { component, name, badge, icon, ...rest } = item
-    const Component = component
+    const { component: Component, name, badge, icon, ...rest } = item
+
     return (
       <Component as="div" key={index}>
         {rest.to || rest.href ? (
           <CNavLink
             {...(rest.to && { as: NavLink })}
-            {...(rest.href && { target: '_blank', rel: 'noopener noreferrer' })}
             {...rest}
           >
             {navLink(name, icon, badge, indent)}
@@ -49,12 +54,12 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navGroup = (item, index) => {
-    const { component, name, icon, items, to, ...rest } = item
-    const Component = component
+    const { component: Component, name, icon, items, ...rest } = item
+
     return (
-      <Component compact as="div" key={index} toggler={navLink(name, icon)} {...rest}>
-        {items?.map((item, index) =>
-          item.items ? navGroup(item, index) : navItem(item, index, true),
+      <Component key={index} toggler={navLink(name, icon)} {...rest}>
+        {items.map((child, i) =>
+          child.items ? navGroup(child, i) : navItem(child, i, true)
         )}
       </Component>
     )

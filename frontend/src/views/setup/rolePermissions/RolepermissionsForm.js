@@ -1,27 +1,33 @@
 import React, { useEffect, useState } from 'react'
 import { CFormSwitch, CButton } from '@coreui/react'
-
-const dummyMenus = [
-  { id: 1, name: 'Dashboard' },
-  { id: 2, name: 'Users' },
-  { id: 3, name: 'Roles' },
-  { id: 4, name: 'Menus' },
-  { id: 5, name: 'Change Password' },
-]
+import api from '../../../services/api'
 
 const RolepermissionsForm = ({ role }) => {
+  const [menus, setMenus] = useState([])
   const [permissions, setPermissions] = useState({})
+  const [loading, setLoading] = useState(false)
+
+  const loadData = async () => {
+    setLoading(true)
+
+    const [resMenus, resPerms] = await Promise.all([
+      api.get('/menus'),
+      api.get(`/role-menus/${role.id}`),
+    ])
+
+    setMenus(resMenus.data.data)
+
+    const active = {}
+    resPerms.data.data.forEach(m => {
+      active[m.id] = true
+    })
+
+    setPermissions(active)
+    setLoading(false)
+  }
 
   useEffect(() => {
-    if (role.name === 'admin') {
-      const all = {}
-      dummyMenus.forEach(m => (all[m.id] = true))
-      setPermissions(all)
-    } else {
-      setPermissions({
-        5: true,
-      })
-    }
+    loadData()
   }, [role])
 
   const toggle = (id) => {
@@ -31,22 +37,28 @@ const RolepermissionsForm = ({ role }) => {
     }))
   }
 
-  const handleSave = () => {
-    console.log({
-      role: role.name,
-      permissions,
+  const handleSave = async () => {
+    const menuIds = Object.keys(permissions)
+      .filter(id => permissions[id])
+      .map(Number)
+
+    await api.post(`/role-menus/${role.id}`, {
+      menu_ids: menuIds,
     })
-    // nanti ganti API
+
+    alert('Permissions saved')
   }
+
+  if (loading) return <p>Loading...</p>
 
   return (
     <>
-      {dummyMenus.map(menu => (
+      {menus.map(menu => (
         <div
           key={menu.id}
           className="d-flex justify-content-between align-items-center mb-3"
         >
-          <strong>{menu.name}</strong>
+          <strong>{menu.menu_name}</strong>
           <CFormSwitch
             checked={!!permissions[menu.id]}
             onChange={() => toggle(menu.id)}

@@ -1,10 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CRow, CCol, CCard, CCardBody, CCardHeader } from '@coreui/react'
 import RolesTable from './RolepermissionsTable'
 import PermissionsForm from './RolepermissionsForm'
+import api from '../../../services/api'
 
 const RolePermissions = () => {
+  const [roles, setRoles] = useState([])
   const [selectedRole, setSelectedRole] = useState(null)
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      const res = await api.get('/roles')
+      setRoles(res.data.data)
+    }
+    fetchRoles()
+  }, [])
 
   return (
     <CRow>
@@ -12,7 +22,7 @@ const RolePermissions = () => {
         <CCard>
           <CCardHeader>Roles</CCardHeader>
           <CCardBody>
-            <RolesTable onSelect={setSelectedRole} />
+            <RolesTable roles={roles} onSelect={setSelectedRole} />
           </CCardBody>
         </CCard>
       </CCol>
@@ -21,7 +31,7 @@ const RolePermissions = () => {
         <CCard>
           <CCardHeader>
             {selectedRole
-              ? `Permissions - ${selectedRole.name}`
+              ? `Permissions - ${selectedRole.role_name}`
               : 'Select Role'}
           </CCardHeader>
           <CCardBody>
