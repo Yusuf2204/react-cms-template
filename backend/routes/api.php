@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 // Route Controllers
 use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\RoleMenuController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,4 +21,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('roles', RoleController::class)->except(['show']);
     Route::apiResource('menus', MenuController::class);
     Route::get('menus-tree', [MenuController::class, 'tree']);
+    Route::get('role-menus/{role}', [RoleMenuController::class, 'show']);
+    Route::post('role-menus/{role}', [RoleMenuController::class, 'store']);
 });

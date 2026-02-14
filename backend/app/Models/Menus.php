@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Roles;
 use Illuminate\Database\Eloquent\Model;
 
 class Menus extends Model
@@ -23,5 +24,15 @@ class Menus extends Model
     public function children()
     {
         return $this->hasMany(Menus::class, 'menu_parent_id')->orderBy('menu_order');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(
+            Roles::class,
+            'rolemenus',
+            'menu_id',
+            'role_id'
+        );
     }
 }
