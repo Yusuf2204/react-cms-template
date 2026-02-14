@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('menu_path')->unique();
             $table->string('menu_icon')->nullable();
             $table->string('menu_parent_id')->nullable()->constrained('menus')->nullOnDelete();
-            $table->integer('menu_order')->nullable();
+            $table->integer('menu_order')->nullable()->default(0);
             $table->timestamps();
         });
     }

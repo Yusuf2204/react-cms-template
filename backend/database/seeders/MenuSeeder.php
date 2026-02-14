@@ -24,11 +24,11 @@ class MenuSeeder extends Seeder
         ]);
 
         Menus::insert([
-            ['menu_name'=>'Users','menu_path'=>'/setup/users','menu_parent_id'=>$setup->id],
-            ['menu_name'=>'Roles','menu_path'=>'/setup/roles','menu_parent_id'=>$setup->id],
-            ['menu_name'=>'Menus','menu_path'=>'/setup/menus','menu_parent_id'=>$setup->id],
-            ['menu_name'=>'Role Permissions','menu_path'=>'/setup/role-permissions','menu_parent_id'=>$setup->id],
-            ['menu_name'=>'Change Password','menu_path'=>'/setup/change-password','menu_parent_id'=>$setup->id],
+            ['menu_name'=>'Users','menu_path'=>'/setup/users','menu_parent_id'=>$setup->id,'menu_order'=>1],
+            ['menu_name'=>'Roles','menu_path'=>'/setup/roles','menu_parent_id'=>$setup->id,'menu_order'=>2],
+            ['menu_name'=>'Menus','menu_path'=>'/setup/menus','menu_parent_id'=>$setup->id,'menu_order'=>3],
+            ['menu_name'=>'Role Permissions','menu_path'=>'/setup/role-permissions','menu_parent_id'=>$setup->id,'menu_order'=>4],
+            ['menu_name'=>'Change Password','menu_path'=>'/setup/change-password','menu_parent_id'=>$setup->id,'menu_order'=>5],
         ]);
     }
 }

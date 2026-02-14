@@ -14,4 +14,14 @@ class Menus extends Model
         'menu_parent_id',
         'menu_order',
     ];
+
+    public function parent()
+    {
+        return $this->belongsTo(Menus::class, 'menu_parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Menus::class, 'menu_parent_id')->orderBy('menu_order');
+    }
 }

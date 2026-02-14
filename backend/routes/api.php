@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 
 // Route Controllers
+use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -17,4 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Setup
     Route::apiResource('users', UserController::class);
     Route::apiResource('roles', RoleController::class)->except(['show']);
+    Route::apiResource('menus', MenuController::class);
+    Route::get('menus-tree', [MenuController::class, 'tree']);
 });
