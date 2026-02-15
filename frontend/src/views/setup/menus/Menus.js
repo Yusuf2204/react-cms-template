@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { CRow, CCol, CCard, CCardBody, CCardHeader, CButton } from '@coreui/react'
+import {
+  CRow,
+  CCol,
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CButton,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
+} from '@coreui/react'
 import { CIcon } from '@coreui/icons-react';
 import { cilReload } from '@coreui/icons';
 import MenusTable from './MenusTable'
@@ -10,6 +22,8 @@ const Menus = () => {
   const [menus, setMenus] = useState([])
   const [selectedMenu, setSelectedMenu] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleteId, setDeleteId] = useState(null)
 
   const fetchMenus = async () => {
     setLoading(true)
@@ -30,10 +44,19 @@ const Menus = () => {
     fetchMenus()
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this menu?')) return
-    await api.delete(`/menus/${id}`)
-    fetchMenus()
+  const handleAskDelete = (id) => {
+    setDeleteId(id)
+    setConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    try {
+      await api.delete(`/menus/${deleteId}`)
+      fetchMenus()
+    } finally {
+      setConfirmOpen(false)
+      setDeleteId(null)
+    }
   }
 
   return (
@@ -51,7 +74,7 @@ const Menus = () => {
               menus={menus}
               loading={loading}
               onSelect={setSelectedMenu}
-              onDelete={handleDelete}
+              onDelete={handleAskDelete}
             />
           </CCardBody>
         </CCard>
@@ -72,6 +95,25 @@ const Menus = () => {
           </CCardBody>
         </CCard>
       </CCol>
+
+      <CModal visible={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <CModalHeader>
+          <CModalTitle>Confirm Delete</CModalTitle>
+        </CModalHeader>
+
+        <CModalBody>
+          Are you sure you want to delete this menu?
+        </CModalBody>
+
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setConfirmOpen(false)}>
+            Cancel
+          </CButton>
+          <CButton color="danger" onClick={handleConfirmDelete}>
+            Delete
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </CRow>
   )
 }

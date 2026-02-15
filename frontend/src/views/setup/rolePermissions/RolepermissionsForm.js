@@ -1,28 +1,20 @@
 import React, { useEffect, useState } from 'react'
-import { CFormSwitch, CButton } from '@coreui/react'
+import { CFormSwitch, CButton, CAlert } from '@coreui/react'
 import api from '../../../services/api'
 
 const RolepermissionsForm = ({ role }) => {
   const [menus, setMenus] = useState([])
-  const [permissions, setPermissions] = useState({})
   const [loading, setLoading] = useState(false)
+  const [alert, setAlert] = useState({
+    show: false,
+    color: 'success',
+    message: '',
+  })
 
   const loadData = async () => {
     setLoading(true)
-
-    const [resMenus, resPerms] = await Promise.all([
-      api.get('/menus'),
-      api.get(`/role-menus/${role.id}`),
-    ])
-
-    setMenus(resMenus.data.data)
-
-    const active = {}
-    resPerms.data.data.forEach(m => {
-      active[m.id] = true
-    })
-
-    setPermissions(active)
+    const res = await api.get(`/role-menus/${role.id}`)
+    setMenus(res.data.data)
     setLoading(false)
   }
 
@@ -30,43 +22,92 @@ const RolepermissionsForm = ({ role }) => {
     loadData()
   }, [role])
 
+  // recursive toggle
+  const toggleMenu = (list, id) =>
+    list.map(menu => {
+      if (menu.id === id) {
+        return { ...menu, checked: !menu.checked }
+      }
+
+      if (menu.children?.length) {
+        return {
+          ...menu,
+          children: toggleMenu(menu.children, id),
+        }
+      }
+
+      return menu
+    })
+
   const toggle = (id) => {
-    setPermissions(prev => ({
-      ...prev,
-      [id]: !prev[id],
-    }))
+    setMenus(prev => toggleMenu(prev, id))
+  }
+
+  // flatten checked ids
+  const collectChecked = (list, result = []) => {
+    list.forEach(menu => {
+      if (menu.checked) result.push(menu.id)
+      if (menu.children?.length) collectChecked(menu.children, result)
+    })
+    return result
   }
 
   const handleSave = async () => {
-    const menuIds = Object.keys(permissions)
-      .filter(id => permissions[id])
-      .map(Number)
+    try {
+      const menuIds = collectChecked(menus)
 
-    await api.post(`/role-menus/${role.id}`, {
-      menu_ids: menuIds,
-    })
+      await api.post(`/role-menus/${role.id}`, {
+        menu_ids: menuIds,
+      })
 
-    alert('Permissions saved')
+      setAlert({
+        show: true,
+        color: 'success',
+        message: 'Permissions updated successfully',
+      })
+
+      setTimeout(() => {
+        window.location.reload()
+      }, 800)
+
+    } catch (err) {
+      setAlert({
+        show: true,
+        color: 'danger',
+        message: 'Failed to save permissions',
+      })
+    }
   }
+
+  const renderMenu = (menu, depth = 0) => (
+    <div key={menu.id} style={{ paddingLeft: depth * 20 }}>
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <strong>{menu.menu_name}</strong>
+        <CFormSwitch
+          checked={menu.checked}
+          onChange={() => toggle(menu.id)}
+        />
+      </div>
+
+      {menu.children?.map(child =>
+        renderMenu(child, depth + 1)
+      )}
+    </div>
+  )
 
   if (loading) return <p>Loading...</p>
 
   return (
     <>
-      {menus.map(menu => (
-        <div
-          key={menu.id}
-          className="d-flex justify-content-between align-items-center mb-3"
-        >
-          <strong>{menu.menu_name}</strong>
-          <CFormSwitch
-            checked={!!permissions[menu.id]}
-            onChange={() => toggle(menu.id)}
-          />
-        </div>
-      ))}
+      {alert.show && (
+        <CAlert color={alert.color} dismissible>
+          {alert.message}
+        </CAlert>
+      )}
 
-      <CButton color="primary" onClick={handleSave}>
+      {menus.map(menu => renderMenu(menu))}
+
+      <CButton color="primary" className="mt-3" onClick={handleSave}>
         Save Permissions
       </CButton>
     </>

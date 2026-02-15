@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { CRow, CCol, CCard, CCardBody, CCardHeader, CButton } from '@coreui/react'
+import {
+  CRow,
+  CCol,
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CButton,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
+} from '@coreui/react'
 import { CIcon } from '@coreui/icons-react';
 import { cilReload } from '@coreui/icons';
 import RolesTable from './RolesTable'
@@ -10,6 +22,8 @@ const Roles = () => {
   const [roles, setRoles] = useState([])
   const [selectedRole, setSelectedRole] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleteId, setDeleteId] = useState(null)
 
   const fetchRoles = async () => {
     setLoading(true)
@@ -30,10 +44,19 @@ const Roles = () => {
     fetchRoles()
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this role?')) return
-    await api.delete(`/roles/${id}`)
-    fetchRoles()
+  const handleAskDelete = (id) => {
+    setDeleteId(id)
+    setConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    try {
+      await api.delete(`/roles/${deleteId}`)
+      fetchRoles()
+    } finally {
+      setConfirmOpen(false)
+      setDeleteId(null)
+    }
   }
 
   return (
@@ -51,7 +74,7 @@ const Roles = () => {
               roles={roles}
               loading={loading}
               onSelect={setSelectedRole}
-              onDelete={handleDelete}
+              onDelete={handleAskDelete}
             />
           </CCardBody>
         </CCard>
@@ -71,6 +94,25 @@ const Roles = () => {
           </CCardBody>
         </CCard>
       </CCol>
+
+      <CModal visible={confirmOpen} onClose={() => setConfirmOpen(false)}>
+          <CModalHeader>
+            <CModalTitle>Confirm Delete</CModalTitle>
+          </CModalHeader>
+
+          <CModalBody>
+            Are you sure you want to delete this role?
+          </CModalBody>
+
+          <CModalFooter>
+            <CButton color="secondary" onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </CButton>
+            <CButton color="danger" onClick={handleConfirmDelete}>
+              Delete
+            </CButton>
+          </CModalFooter>
+        </CModal>
     </CRow>
   )
 }

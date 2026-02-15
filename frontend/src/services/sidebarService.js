@@ -5,14 +5,25 @@ import api from './api'
 
 const resolveIcon = (iconName) => {
   if (!iconName) return null
-
   const icon = icons[iconName]
-
   if (!icon) return null
-
   return <CIcon icon={icon} className="nav-icon" />
 }
 
+/* ===============================
+   FILTER PERMISSION TREE
+================================ */
+const filterTree = (menus) =>
+  menus
+    .filter(menu => menu.checked)
+    .map(menu => ({
+      ...menu,
+      children: filterTree(menu.children || []),
+    }))
+
+/* ===============================
+   BUILD COREUI NAV
+================================ */
 const buildNav = (menus) =>
   menus.map(menu =>
     menu.children.length
@@ -36,5 +47,7 @@ export const loadSidebarNavigation = async () => {
 
   const res = await api.get(`/role-menus/${roleId}`)
 
-  return buildNav(res.data.data)
+  const allowedTree = filterTree(res.data.data)
+
+  return buildNav(allowedTree)
 }
