@@ -16,6 +16,9 @@ import api from './services/api'
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
+// Company
+import { loadCompanyBranding } from './services/companyService'
+
 // Pages
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
@@ -46,6 +49,8 @@ const App = () => {
     } else if (!isColorModeSet()) {
       setColorMode(storedTheme)
     }
+
+    loadCompanyBranding()
 
     if (localStorage.getItem('token')) {
       checkAuth()

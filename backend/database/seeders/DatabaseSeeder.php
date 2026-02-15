@@ -3,11 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Seeder;
+use Database\Seeders\CompanySeeder;
 use Database\Seeders\MenuSeeder;
-use Database\Seeders\RoleSeeder;
 use Database\Seeders\RoleMenuSeeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             MenuSeeder::class,
             RoleMenuSeeder::class,
+            CompanySeeder::class
         ]);
 
         User::factory()->create([

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 
 // Route Controllers
+use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\RoleMenuController;
@@ -24,4 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('role-menus/{role}', [RoleMenuController::class, 'show']);
     Route::post('role-menus/{role}', [RoleMenuController::class, 'store']);
     Route::post('change-password', [UserController::class, 'changePassword']);
+    Route::get('company', [CompanyController::class, 'show']);
+    Route::put('company', [CompanyController::class, 'update']);
 });
