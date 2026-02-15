@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 import { CSpinner, useColorModes } from '@coreui/react'
@@ -28,13 +28,14 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
+  const navigate = useNavigate()
 
   const checkAuth = async () => {
     try {
       await api.get('/me')
     } catch {
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      navigate('/login', { replace: true })
     }
   }
 
@@ -50,15 +51,13 @@ const App = () => {
       setColorMode(storedTheme)
     }
 
-    loadCompanyBranding()
-
     if (localStorage.getItem('token')) {
       checkAuth()
+      loadCompanyBranding()
     }
   }, [])
 
   return (
-    <HashRouter>
       <Suspense
         fallback={
           <div className="pt-3 text-center">
@@ -81,7 +80,6 @@ const App = () => {
           />
         </Routes>
       </Suspense>
-    </HashRouter>
   )
 }
 

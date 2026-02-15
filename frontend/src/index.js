@@ -1,5 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import 'core-js'
 
@@ -8,6 +9,8 @@ import store from './store'
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <App />
+    <HashRouter>
+      <App />
+    </HashRouter>
   </Provider>,
 )

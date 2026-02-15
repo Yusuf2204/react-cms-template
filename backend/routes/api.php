@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 // MAIN
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('company', [CompanyController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -25,6 +26,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('role-menus/{role}', [RoleMenuController::class, 'show']);
     Route::post('role-menus/{role}', [RoleMenuController::class, 'store']);
     Route::post('change-password', [UserController::class, 'changePassword']);
-    Route::get('company', [CompanyController::class, 'show']);
     Route::put('company', [CompanyController::class, 'update']);
 });
