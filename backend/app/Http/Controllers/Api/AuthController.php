@@ -42,8 +42,23 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
+        $token = $request->user()->currentAccessToken();
+
+        if (!$token) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Unauthorized',
+                'errors' => ['auth' => ['Unauthorized']],
+            ], 401);
+        }
+
+        $data = [
+            'token' => $token->plainTextToken,
+            'user'  => $request->user(),
+        ];
+
         return response()->json([
-            'data' => $request->user(),
+            'data' => $data,
             'message' => 'OK',
             'errors' => null,
         ]);

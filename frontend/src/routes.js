@@ -4,6 +4,7 @@ import React from 'react'
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 
 // Setup
+const Company = React.lazy(() => import('./views/setup/company/Company'))
 const Users = React.lazy(() => import('./views/setup/users/Users'))
 const Roles = React.lazy(() => import('./views/setup/roles/Roles'))
 const Menus = React.lazy(() => import('./views/setup/menus/Menus'))
@@ -20,6 +21,7 @@ const routes = [
   { path: '/setup/menus', name: 'Menus', element: Menus },
   { path: '/setup/role-permissions', name: 'Role Permissions', element: RolePermissions },
   { path: '/setup/change-password', name: 'Change Password', element: ChangePassword },
+  { path: '/setup/company', name: 'Company', element: Company },
 ]
 
 export default routes
