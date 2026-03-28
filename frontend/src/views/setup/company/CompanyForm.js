@@ -1,57 +1,95 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   CForm,
   CFormInput,
   CButton,
-  CRow,
-  CCol,
   CAlert,
 } from '@coreui/react'
 import api from '../../../services/api'
-import { loadCompanyBranding } from '../../../services/companyService'
+import { useDispatch } from 'react-redux'
 
-const CompanyForm = ({ company, onSaved }) => {
+const CompanyForm = ({ company }) => {
+  const dispatch = useDispatch()
+
   const [form, setForm] = useState({
-    comp_name: company.comp_name || '',
-    app_title: company.app_title || '',
-    comp_logo: company.comp_logo || '',
-    fav_icon: company.fav_icon || '',
+    comp_name: '',
+    app_title: '',
+    comp_logo: '',
+    fav_icon: '',
   })
 
   const [success, setSuccess] = useState(false)
+  const [saving, setSaving] = useState(false)
 
+  /* ===============================
+     SYNC REDUX → FORM
+  ============================== */
+  useEffect(() => {
+    if (!company) return
+
+    setForm({
+      comp_name: company.comp_name || '',
+      app_title: company.app_title || '',
+      comp_logo: company.comp_logo || '',
+      fav_icon: company.fav_icon || '',
+    })
+  }, [company])
+
+  /* ===============================
+     INPUT HANDLER
+  ============================== */
   const handleChange = (e) => {
+    setSuccess(false) // reset alert kalau edit lagi
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+  /* ===============================
+     SUBMIT
+  ============================== */
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSaving(true)
 
-    await api.put('/company', form)
+    try {
+      const res = await api.put('/company', form)
 
-    await loadCompanyBranding() // update title + favicon instantly
+      // update redux (single source of truth)
+      dispatch({
+        type: 'set',
+        company: res.data.data,
+      })
 
-    setSuccess(true)
-    onSaved()
+      setSuccess(true)
+    } catch (err) {
+      console.error(err)
+      alert('Failed to update company')
+    } finally {
+      setSaving(false)
+    }
   }
 
+  /* ===============================
+     FILE → BASE64
+  ============================== */
   const fileToBase64 = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
 
   return (
     <CForm onSubmit={handleSubmit}>
 
+      {/* SUCCESS ALERT */}
       {success && (
         <CAlert color="success" dismissible>
           Company updated successfully
         </CAlert>
       )}
 
+      {/* COMPANY NAME */}
       <CFormInput
         label="Company Name"
         name="comp_name"
@@ -60,6 +98,7 @@ const CompanyForm = ({ company, onSaved }) => {
         className="mb-3"
       />
 
+      {/* APP TITLE */}
       <CFormInput
         label="App Title (Browser Tab)"
         name="app_title"
@@ -68,6 +107,7 @@ const CompanyForm = ({ company, onSaved }) => {
         className="mb-3"
       />
 
+      {/* LOGO UPLOAD */}
       <CFormInput
         type="file"
         label="Company Logo"
@@ -85,10 +125,12 @@ const CompanyForm = ({ company, onSaved }) => {
       {form.comp_logo && (
         <img
           src={form.comp_logo}
+          alt="logo preview"
           style={{ height: 60, marginBottom: 20 }}
         />
       )}
 
+      {/* FAVICON UPLOAD */}
       <CFormInput
         type="file"
         label="Favicon"
@@ -106,15 +148,18 @@ const CompanyForm = ({ company, onSaved }) => {
       {form.fav_icon && (
         <img
           src={form.fav_icon}
+          alt="favicon preview"
           style={{ height: 32, marginBottom: 20 }}
         />
       )}
 
+      {/* BUTTON */}
       <div className="mt-3">
-        <CButton type="submit" color="primary">
-          Save Company Settings
+        <CButton type="submit" color="primary" disabled={saving}>
+          {saving ? 'Saving...' : 'Save Company Settings'}
         </CButton>
       </div>
+
     </CForm>
   )
 }

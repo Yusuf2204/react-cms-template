@@ -41,10 +41,7 @@ const buildNav = (menus) =>
         }
   )
 
-export const loadSidebarNavigation = async () => {
-  const me = await api.get('/me')
-  const roleId = me.data?.data?.user?.role_id
-
+export const loadSidebarNavigation = async (roleId) => {
   if (!roleId) return []
 
   const res = await api.get(`/role-menus/${roleId}`)

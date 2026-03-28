@@ -18,23 +18,21 @@ const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  const user = useSelector((state) => state.user)
+  const company = useSelector((state) => state.company)
 
   const [navigation, setNavigation] = useState([])
-  const [company, setCompany] = useState(null)
 
   useEffect(() => {
-    const loadAll = async () => {
-      const [nav, companyRes] = await Promise.all([
-        loadSidebarNavigation(),
-        api.get('/company'),
-      ])
+    const loadNav = async () => {
+      if (!user?.role_id) return
 
+      const nav = await loadSidebarNavigation(user.role_id)
       setNavigation(nav)
-      setCompany(companyRes.data.data)
     }
 
-    loadAll()
-  }, [])
+    loadNav()
+  }, [user])
 
   return (
     <CSidebar

@@ -17,7 +17,6 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { loadCompanyBranding } from '../../../services/companyService'
 
 const Login = () => {
 
@@ -27,8 +26,6 @@ const Login = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    loadCompanyBranding()
-
     const checkAuth = async () => {
       const token = localStorage.getItem('token')
       if (!token) return
@@ -52,8 +49,6 @@ const Login = () => {
       const res = await api.post('/login', { email, password })
 
       localStorage.setItem('token', res.data.data.token)
-
-      await loadCompanyBranding()
 
       navigate('/dashboard')
 
