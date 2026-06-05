@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import {
   CButton,
   CCard,
@@ -24,6 +25,7 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -49,6 +51,10 @@ const Login = () => {
       const res = await api.post('/login', { email, password })
 
       localStorage.setItem('token', res.data.data.token)
+      dispatch({
+        type: 'set',
+        user: res.data.data.user,
+      })
 
       navigate('/dashboard')
 

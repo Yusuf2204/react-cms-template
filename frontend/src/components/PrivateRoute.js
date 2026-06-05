@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import api from '../services/api'
 
 const PrivateRoute = ({ children }) => {
   const [isValid, setIsValid] = useState(null)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const validateToken = async () => {
@@ -15,7 +17,11 @@ const PrivateRoute = ({ children }) => {
       }
 
       try {
-        await api.get('/me')
+        const res = await api.get('/me')
+        dispatch({
+          type: 'set',
+          user: res.data.data.user,
+        })
         setIsValid(true)
       } catch {
         localStorage.removeItem('token')

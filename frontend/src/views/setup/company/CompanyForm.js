@@ -130,6 +130,8 @@ const CompanyForm = ({ company }) => {
         />
       )}
 
+      <br />
+
       {/* FAVICON UPLOAD */}
       <CFormInput
         type="file"
