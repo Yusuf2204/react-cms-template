@@ -23,7 +23,7 @@ class UserController extends Controller
             'name'     => 'required|string',
             'email'    => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'role_id'  => 'nullable|exists:roles,id',
+            'role_id'  => 'required|exists:roles,id',
         ]);
 
         $data['password'] = Hash::make($data['password']);
@@ -83,17 +83,18 @@ class UserController extends Controller
     public function changePassword(Request $request)
     {
         $request->validate([
-            'old_password' => 'required',
+            'current_password' => 'required',
             'new_password' => 'required|min:6',
+            'confirm_password' => 'required|same:new_password',
         ]);
 
         $user = Auth::user();
 
-        if (!Hash::check($request->old_password, $user->password)) {
+        if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'data' => null,
-                'message' => 'Old password is incorrect',
-                'errors' => ['old_password' => 'Wrong password'],
+                'message' => 'Current password is incorrect',
+                'errors' => ['current_password' => 'Wrong password'],
             ], 422);
         }
 

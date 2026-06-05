@@ -28,6 +28,15 @@ class MenuController extends Controller
         ]);
     }
 
+    public function show($id)
+    {
+        return response()->json([
+            'data' => Menus::with('parent')->findOrFail($id),
+            'message' => 'OK',
+            'errors' => null
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         $menu = Menus::findOrFail($id);

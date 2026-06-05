@@ -13,15 +13,16 @@ import api from '../../../services/api'
 
 const Changepassword = () => {
   const [email, setEmail] = useState('')
-  const [oldPassword, setOldPassword] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [alert, setAlert] = useState(null)
 
   useEffect(() => {
     const loadMe = async () => {
       const res = await api.get('/me')
-      setEmail(res.data.data.email)
+      setEmail(res.data.data.user.email)
     }
 
     loadMe()
@@ -30,7 +31,7 @@ const Changepassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!oldPassword || !newPassword) {
+    if (!currentPassword || !newPassword || !confirmPassword) {
       setAlert({ type: 'warning', message: 'All fields are required.' })
       return
     }
@@ -40,19 +41,26 @@ const Changepassword = () => {
       return
     }
 
+    if (newPassword !== confirmPassword) {
+      setAlert({ type: 'warning', message: 'Password confirmation does not match.' })
+      return
+    }
+
     setLoading(true)
     setAlert(null)
 
     try {
       await api.post('/change-password', {
-        old_password: oldPassword,
+        current_password: currentPassword,
         new_password: newPassword,
+        confirm_password: confirmPassword,
       })
 
       setAlert({ type: 'success', message: 'Password updated. Please login again.' })
 
-      setOldPassword('')
+      setCurrentPassword('')
       setNewPassword('')
+      setConfirmPassword('')
 
       // auto logout after 1.5s
       setTimeout(() => {
@@ -95,9 +103,9 @@ const Changepassword = () => {
 
           <CFormInput
             type="password"
-            label="Old Password"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
+            label="Current Password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
             className="mb-3"
           />
 
@@ -106,6 +114,14 @@ const Changepassword = () => {
             label="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
+            className="mb-3"
+          />
+
+          <CFormInput
+            type="password"
+            label="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="mb-4"
           />
 
