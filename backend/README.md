@@ -1,59 +1,165 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# React CMS Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend React CMS adalah REST API berbasis Laravel 12. Modul utamanya mencakup
+autentikasi Sanctum, users, roles, menu dan permission, company settings,
+dashboard summary, serta dokumentasi OpenAPI.
 
-## About Laravel
+## Persyaratan
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2 atau lebih baru
+- Composer 2
+- Ekstensi PHP yang dibutuhkan Laravel
+- MySQL, MariaDB, atau SQLite
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Instalasi Lokal
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-## Learning Laravel
+Konfigurasikan database di `.env`. Contoh MySQL:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```dotenv
+APP_URL=http://127.0.0.1:8000
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=react_cms
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## Laravel Sponsors
+Untuk membuat akun administrator melalui seeder, isi:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```dotenv
+ADMIN_NAME=Administrator
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change-this-password
+```
 
-### Premium Partners
+`ADMIN_PASSWORD` harus memiliki minimal 12 karakter. Jalankan migrasi dan seeder:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+php artisan migrate --seed
+```
 
-## Contributing
+Jika variabel admin belum diisi saat proses seed pertama, isi variabel tersebut
+kemudian jalankan:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan db:seed --class=AdminUserSeeder
+```
 
-## Code of Conduct
+## Menjalankan API
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan serve
+```
 
-## Security Vulnerabilities
+Alamat development:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- API: `http://127.0.0.1:8000/api`
+- Swagger: `http://127.0.0.1:8000`
+- Swagger alternatif: `http://127.0.0.1:8000/api/documentation`
 
-## License
+Route `/` sengaja diarahkan ke Swagger UI, bukan halaman welcome Laravel.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Dokumentasi Swagger
+
+Generate ulang dokumentasi setelah mengubah annotation OpenAPI:
+
+```bash
+php artisan l5-swagger:generate
+```
+
+Dokumen JSON dihasilkan di:
+
+```text
+storage/api-docs/api-docs.json
+```
+
+Alur pengujian endpoint terproteksi:
+
+1. Jalankan `POST /api/login`.
+2. Salin token dari response.
+3. Klik **Authorize** di Swagger.
+4. Masukkan bearer token.
+5. Jalankan endpoint terproteksi.
+
+Server OpenAPI dibentuk dari `APP_URL` dengan prefix `/api`, sehingga URL dapat
+menyesuaikan environment local, staging, dan production.
+
+## Endpoint Utama
+
+| Modul | Endpoint |
+| --- | --- |
+| Auth | `POST /login`, `GET /me`, `POST /logout` |
+| Dashboard | `GET /dashboard-summary` |
+| Users | `GET`, `POST`, `PUT`, `DELETE /users` |
+| Password | `POST /change-password` |
+| Roles | `GET`, `POST`, `PUT`, `DELETE /roles` |
+| Menus | `GET`, `POST`, `PUT`, `DELETE /menus`, `GET /menus-tree` |
+| Permissions | `GET`, `POST /role-menus/{role}` |
+| Company | `GET /company`, `PUT /company` |
+
+`POST /login` dan `GET /company` bersifat publik. Endpoint lain menggunakan
+middleware `auth:sanctum`.
+
+## Respons API
+
+API menggunakan bentuk respons umum:
+
+```json
+{
+  "data": {},
+  "message": "Operation successful",
+  "errors": null
+}
+```
+
+Kesalahan validasi menggunakan `errors` per field:
+
+```json
+{
+  "data": null,
+  "message": "Validation failed",
+  "errors": {
+    "email": [
+      "The email field is required."
+    ]
+  }
+}
+```
+
+## Pengujian
+
+```bash
+php artisan test
+```
+
+Untuk memeriksa daftar route:
+
+```bash
+php artisan route:list
+```
+
+## CORS dan Sanctum
+
+Origin frontend dikonfigurasi melalui `.env`. Untuk production:
+
+- Batasi origin hanya ke domain frontend.
+- Gunakan HTTPS.
+- Jangan commit token atau secret.
+- Atur masa berlaku dan prefix token sesuai kebijakan sistem.
+- Gunakan `APP_DEBUG=false` dan `APP_ENV=production`.
+
+Lihat `.env.production.example` untuk template konfigurasi.
+
+## Deployment
+
+Panduan lengkap mengenai environment, cache, database, scheduler, backup,
+logging, dan rollback tersedia di
+[docs/production-deployment.md](docs/production-deployment.md).
