@@ -17,12 +17,8 @@ const RolepermissionsTable = ({ roles, onSelect }) => {
         </CTableRow>
       </CTableHead>
       <CTableBody>
-        {roles.map(r => (
-          <CTableRow
-            key={r.id}
-            onClick={() => onSelect(r)}
-            style={{ cursor: 'pointer' }}
-          >
+        {roles.map((r) => (
+          <CTableRow key={r.id} onClick={() => onSelect(r)} style={{ cursor: 'pointer' }}>
             <CTableDataCell>{r.role_name}</CTableDataCell>
           </CTableRow>
         ))}

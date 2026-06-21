@@ -7,10 +7,18 @@ import {
   CTableBody,
   CTableDataCell,
   CButton,
+  CSpinner,
 } from '@coreui/react'
 
 const MenusTable = ({ menus, loading, onSelect, onDelete }) => {
-  if (loading) return <p>Loading...</p>
+  if (loading) {
+    return (
+      <div className="d-flex align-items-center text-body-secondary py-3">
+        <CSpinner size="sm" className="me-2" />
+        Loading menus...
+      </div>
+    )
+  }
 
   return (
     <CTable hover>
@@ -25,7 +33,7 @@ const MenusTable = ({ menus, loading, onSelect, onDelete }) => {
       </CTableHead>
 
       <CTableBody>
-        {menus.map(m => (
+        {menus.map((m) => (
           <CTableRow key={m.id}>
             <CTableDataCell onClick={() => onSelect(m)} style={{ cursor: 'pointer' }}>
               {m.menu_name}

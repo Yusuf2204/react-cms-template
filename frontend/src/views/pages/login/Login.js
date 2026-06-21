@@ -14,16 +14,17 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-  CAlert
+  CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import { getFieldError } from '../../../utils/formErrors'
 
 const Login = () => {
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
@@ -33,7 +34,13 @@ const Login = () => {
       if (!token) return
 
       try {
-        await api.get('/me')
+        const res = await api.get('/me')
+        dispatch({
+          type: 'set',
+          user: res.data.data.user,
+          company: res.data.data.company,
+          navigation: res.data.data.navigation || [],
+        })
         navigate('/dashboard')
       } catch {
         localStorage.removeItem('token')
@@ -41,11 +48,12 @@ const Login = () => {
     }
 
     checkAuth()
-  }, [])
+  }, [dispatch, navigate])
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    setError(null)
+    setLoading(true)
+    setErrors({})
 
     try {
       const res = await api.post('/login', { email, password })
@@ -54,12 +62,22 @@ const Login = () => {
       dispatch({
         type: 'set',
         user: res.data.data.user,
+        company: res.data.data.company,
+        navigation: res.data.data.navigation || [],
       })
 
       navigate('/dashboard')
-
     } catch (err) {
-      setError(err.response?.data?.message || 'Email atau password salah')
+      const validationErrors = err.validationErrors || {}
+      setErrors(
+        Object.keys(validationErrors).length
+          ? validationErrors
+          : {
+              auth: [err.userMessage || 'Invalid email or password'],
+            },
+      )
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -83,7 +101,13 @@ const Login = () => {
                         placeholder="Email"
                         autoComplete="username"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setErrors({ ...errors, email: null, auth: null })
+                          setEmail(e.target.value)
+                        }}
+                        invalid={Boolean(getFieldError(errors, 'email'))}
+                        feedbackInvalid={getFieldError(errors, 'email')}
+                        disabled={loading}
                       />
                     </CInputGroup>
 
@@ -96,20 +120,31 @@ const Login = () => {
                         placeholder="Password"
                         autoComplete="current-password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                          setErrors({ ...errors, password: null, auth: null })
+                          setPassword(e.target.value)
+                        }}
+                        invalid={Boolean(
+                          getFieldError(errors, 'password') || getFieldError(errors, 'auth'),
+                        )}
+                        feedbackInvalid={
+                          getFieldError(errors, 'password') || getFieldError(errors, 'auth')
+                        }
+                        disabled={loading}
                       />
                     </CInputGroup>
 
-                    {error && (
-                      <CAlert color="danger" dismissible>
-                        {error}
-                      </CAlert>
-                    )}
-
                     <CRow>
                       <CCol xs={6}>
-                        <CButton type="submit" color="primary" className="px-4">
-                          Login
+                        <CButton type="submit" color="primary" className="px-4" disabled={loading}>
+                          {loading ? (
+                            <>
+                              <CSpinner size="sm" className="me-2" />
+                              Signing in...
+                            </>
+                          ) : (
+                            'Login'
+                          )}
                         </CButton>
                       </CCol>
                     </CRow>
@@ -128,7 +163,6 @@ const Login = () => {
                   </Link>
                 </CCardBody>
               </CCard>
-
             </CCardGroup>
           </CCol>
         </CRow>

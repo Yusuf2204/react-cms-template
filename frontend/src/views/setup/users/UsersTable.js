@@ -7,10 +7,18 @@ import {
   CTableBody,
   CTableDataCell,
   CButton,
+  CSpinner,
 } from '@coreui/react'
 
 const UsersTable = ({ users, loading, currentUserId, onSelect, onDelete }) => {
-  if (loading) return <p>Loading...</p>
+  if (loading) {
+    return (
+      <div className="d-flex align-items-center text-body-secondary py-3">
+        <CSpinner size="sm" className="me-2" />
+        Loading users...
+      </div>
+    )
+  }
 
   return (
     <CTable hover>
@@ -27,14 +35,9 @@ const UsersTable = ({ users, loading, currentUserId, onSelect, onDelete }) => {
         {users.map((u) => {
           const isSelf = Number(u.id) === Number(currentUserId)
 
-          console.log('isSelf', isSelf, u.id, currentUserId)
-
           return (
             <CTableRow key={u.id}>
-              <CTableDataCell
-                onClick={() => onSelect(u)}
-                style={{ cursor: 'pointer' }}
-              >
+              <CTableDataCell onClick={() => onSelect(u)} style={{ cursor: 'pointer' }}>
                 {u.name}
               </CTableDataCell>
 

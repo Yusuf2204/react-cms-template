@@ -30,13 +30,9 @@ const RolePermissions = () => {
       <CCol md={7}>
         <CCard>
           <CCardHeader>
-            {selectedRole
-              ? `Permissions - ${selectedRole.role_name}`
-              : 'Select Role'}
+            {selectedRole ? `Permissions - ${selectedRole.role_name}` : 'Select Role'}
           </CCardHeader>
-          <CCardBody>
-            {selectedRole && <PermissionsForm role={selectedRole} />}
-          </CCardBody>
+          <CCardBody>{selectedRole && <PermissionsForm role={selectedRole} />}</CCardBody>
         </CCard>
       </CCol>
     </CRow>

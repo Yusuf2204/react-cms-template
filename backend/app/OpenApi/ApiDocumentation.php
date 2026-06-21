@@ -33,6 +33,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="ApiSuccess",
+ *
  *     @OA\Property(property="data", nullable=true),
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -40,6 +41,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="ApiError",
+ *
  *     @OA\Property(property="data", nullable=true, example=null),
  *     @OA\Property(property="message", type="string", example="The given data was invalid."),
  *     @OA\Property(
@@ -52,6 +54,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="ApiMetaResponse",
+ *
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
  * )
@@ -60,9 +63,9 @@ use OpenApi\Annotations as OA;
  *     schema="ValidationErrorResponse",
  *     allOf={@OA\Schema(ref="#/components/schemas/ApiError")}
  * )
- *
  * @OA\Schema(
  *     schema="AuthUser",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="Admin"),
  *     @OA\Property(property="email", type="string", format="email", example="admin@gmail.com"),
@@ -72,24 +75,35 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="LoginRequest",
  *     required={"email","password"},
+ *
  *     @OA\Property(property="email", type="string", format="email", example="admin@gmail.com"),
  *     @OA\Property(property="password", type="string", format="password", example="password")
  * )
  *
  * @OA\Schema(
  *     schema="LoginSuccessResponse",
+ *
  *     @OA\Property(
  *         property="data",
  *         type="object",
  *         @OA\Property(property="token", type="string", example="1|xxxxx"),
- *         @OA\Property(property="user", ref="#/components/schemas/AuthUser")
+ *         @OA\Property(property="user", ref="#/components/schemas/AuthUser"),
+ *         @OA\Property(property="company", ref="#/components/schemas/Company", nullable=true),
+ *         @OA\Property(
+ *             property="navigation",
+ *             type="array",
+ *
+ *             @OA\Items(ref="#/components/schemas/RoleMenuTree")
+ *         )
  *     ),
+ *
  *     @OA\Property(property="message", type="string", example="Login successful"),
  *     @OA\Property(property="errors", nullable=true, example=null)
  * )
  *
  * @OA\Schema(
  *     schema="LoginUnauthorizedResponse",
+ *
  *     @OA\Property(property="data", nullable=true, example=null),
  *     @OA\Property(property="message", type="string", example="Invalid credentials"),
  *     @OA\Property(
@@ -98,6 +112,7 @@ use OpenApi\Annotations as OA;
  *         @OA\Property(
  *             property="auth",
  *             type="array",
+ *
  *             @OA\Items(type="string", example="Email or password incorrect")
  *         )
  *     )
@@ -105,18 +120,27 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="MeResponse",
+ *
  *     @OA\Property(
  *         property="data",
  *         type="object",
- *         @OA\Property(property="token", type="string", nullable=true, example="1|xxxxx"),
- *         @OA\Property(property="user", ref="#/components/schemas/AuthUser")
+ *         @OA\Property(property="user", ref="#/components/schemas/AuthUser"),
+ *         @OA\Property(property="company", ref="#/components/schemas/Company", nullable=true),
+ *         @OA\Property(
+ *             property="navigation",
+ *             type="array",
+ *
+ *             @OA\Items(ref="#/components/schemas/RoleMenuTree")
+ *         )
  *     ),
+ *
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
  * )
  *
  * @OA\Schema(
  *     schema="LogoutResponse",
+ *
  *     @OA\Property(property="data", nullable=true, example=null),
  *     @OA\Property(property="message", type="string", example="Logged out"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -124,12 +148,14 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="Role",
+ *
  *     @OA\Property(property="role_id", type="integer", example=1),
  *     @OA\Property(property="role_name", type="string", example="Administrator")
  * )
  *
  * @OA\Schema(
  *     schema="RoleModel",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="role_name", type="string", example="Administrator"),
  *     @OA\Property(property="created_at", type="string", format="date-time", nullable=true),
@@ -139,11 +165,13 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="RoleRequest",
  *     required={"role_name"},
+ *
  *     @OA\Property(property="role_name", type="string", example="Administrator")
  * )
  *
  * @OA\Schema(
  *     schema="RolesListResponse",
+ *
  *     @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Role")),
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -151,6 +179,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="RoleResponse",
+ *
  *     @OA\Property(property="data", ref="#/components/schemas/Role"),
  *     @OA\Property(property="message", type="string", example="Role updated"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -158,6 +187,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="RoleDeleteResponse",
+ *
  *     @OA\Property(property="data", nullable=true, example=null),
  *     @OA\Property(property="message", type="string", example="Role deleted"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -165,6 +195,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="User",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="Admin"),
  *     @OA\Property(property="email", type="string", format="email", example="admin@example.com"),
@@ -178,6 +209,7 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="UserCreateRequest",
  *     required={"name","email","password","role_id"},
+ *
  *     @OA\Property(property="name", type="string", example="Editor"),
  *     @OA\Property(property="email", type="string", format="email", example="editor@example.com"),
  *     @OA\Property(property="password", type="string", format="password", minLength=6, example="secret123"),
@@ -187,6 +219,7 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="UserUpdateRequest",
  *     required={"name","email"},
+ *
  *     @OA\Property(property="name", type="string", example="Editor Updated"),
  *     @OA\Property(property="email", type="string", format="email", example="editor@example.com"),
  *     @OA\Property(property="password", type="string", format="password", nullable=true, minLength=6, example="newsecret123"),
@@ -195,6 +228,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="UsersListResponse",
+ *
  *     @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/User")),
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -202,6 +236,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="UserResponse",
+ *
  *     @OA\Property(property="data", ref="#/components/schemas/User"),
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -209,6 +244,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="UserDeleteResponse",
+ *
  *     @OA\Property(property="data", nullable=true, example=null),
  *     @OA\Property(property="message", type="string", example="User deleted"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -217,6 +253,7 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="ChangePasswordRequest",
  *     required={"current_password","new_password","confirm_password"},
+ *
  *     @OA\Property(property="current_password", type="string", format="password", example="secret123"),
  *     @OA\Property(property="new_password", type="string", format="password", minLength=6, example="newsecret123"),
  *     @OA\Property(property="confirm_password", type="string", format="password", example="newsecret123")
@@ -224,6 +261,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="ChangePasswordResponse",
+ *
  *     @OA\Property(property="data", type="boolean", example=true),
  *     @OA\Property(property="message", type="string", example="Password updated"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -231,6 +269,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="Company",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="comp_name", type="string", example="React CMS"),
  *     @OA\Property(
@@ -255,6 +294,7 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="CompanyRequest",
  *     required={"comp_name"},
+ *
  *     @OA\Property(property="comp_name", type="string", example="React CMS"),
  *     @OA\Property(property="app_title", type="string", nullable=true, example="React CMS"),
  *     @OA\Property(
@@ -275,6 +315,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="CompanyResponse",
+ *
  *     @OA\Property(property="data", ref="#/components/schemas/Company", nullable=true),
  *     @OA\Property(property="message", type="string", example="Updated"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -282,6 +323,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="Menu",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="menu_id", type="integer", example=1),
  *     @OA\Property(property="menu_name", type="string", example="Dashboard"),
@@ -296,6 +338,7 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="MenuRequest",
  *     required={"menu_name","menu_path"},
+ *
  *     @OA\Property(property="menu_name", type="string", example="Dashboard"),
  *     @OA\Property(property="menu_path", type="string", example="/dashboard"),
  *     @OA\Property(property="menu_icon", type="string", nullable=true, example="cil-speedometer"),
@@ -305,6 +348,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="MenusListResponse",
+ *
  *     @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Menu")),
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -312,6 +356,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="MenuResponse",
+ *
  *     @OA\Property(property="data", ref="#/components/schemas/Menu"),
  *     @OA\Property(property="message", type="string", example="Updated"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -319,6 +364,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="MenuDeleteResponse",
+ *
  *     @OA\Property(property="data", type="boolean", example=true),
  *     @OA\Property(property="message", type="string", example="Deleted"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -329,9 +375,11 @@ use OpenApi\Annotations as OA;
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/Menu"),
  *         @OA\Schema(
+ *
  *             @OA\Property(
  *                 property="children",
  *                 type="array",
+ *
  *                 @OA\Items(ref="#/components/schemas/MenuTree")
  *             )
  *         )
@@ -340,6 +388,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="MenuTreeResponse",
+ *
  *     @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/MenuTree")),
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -350,10 +399,12 @@ use OpenApi\Annotations as OA;
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/Menu"),
  *         @OA\Schema(
+ *
  *             @OA\Property(property="checked", type="boolean", example=true),
  *             @OA\Property(
  *                 property="children",
  *                 type="array",
+ *
  *                 @OA\Items(ref="#/components/schemas/RoleMenuTree")
  *             )
  *         )
@@ -362,6 +413,7 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Schema(
  *     schema="RoleMenuTreeResponse",
+ *
  *     @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/RoleMenuTree")),
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -370,11 +422,13 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="RoleMenuUpdateRequest",
  *     required={"menu_ids"},
+ *
  *     @OA\Property(property="menu_ids", type="array", @OA\Items(type="integer"), example={1,2,3})
  * )
  *
  * @OA\Schema(
  *     schema="RoleMenuUpdateResponse",
+ *
  *     @OA\Property(property="data", type="boolean", example=true),
  *     @OA\Property(property="message", type="string", example="Permissions updated"),
  *     @OA\Property(property="errors", nullable=true, example=null)
@@ -387,16 +441,20 @@ class ApiDocumentation
      *     path="/login",
      *     tags={"Auth"},
      *     summary="Login and create a Sanctum token",
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/LoginRequest",
      *             example={"email":"admin@gmail.com","password":"password"}
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Login successful",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/LoginSuccessResponse",
      *             example={
@@ -414,9 +472,11 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Invalid credentials",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/LoginUnauthorizedResponse",
      *             example={
@@ -430,12 +490,11 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse"))
      * )
      */
-    public function login(): void
-    {
-    }
+    public function login(): void {}
 
     /**
      * @OA\Get(
@@ -443,14 +502,15 @@ class ApiDocumentation
      *     tags={"Auth"},
      *     summary="Get authenticated user",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Authenticated user",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/MeResponse",
      *             example={
      *                 "data": {
-     *                     "token": "1|xxxxx",
      *                     "user": {
      *                         "id": 1,
      *                         "name": "Admin",
@@ -463,6 +523,7 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      *
@@ -471,29 +532,32 @@ class ApiDocumentation
      *     tags={"Auth"},
      *     summary="Delete current Sanctum token",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Logged out",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/LogoutResponse",
      *             example={"data":null,"message":"Logged out","errors":null}
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
-    public function authSession(): void
-    {
-    }
+    public function authSession(): void {}
 
     /**
      * @OA\Get(
      *     path="/company",
      *     tags={"Company"},
      *     summary="Get company profile",
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Company profile",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/CompanyResponse",
      *             example={
@@ -516,8 +580,10 @@ class ApiDocumentation
      *     summary="Update company profile",
      *     description="Uploads logo and favicon as base64 data URL strings, for example data:image/png;base64,iVBORw0KGgo...",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/CompanyRequest",
      *             example={
@@ -528,9 +594,11 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Updated",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/CompanyResponse",
      *             example={
@@ -545,13 +613,12 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse"))
      * )
      */
-    public function company(): void
-    {
-    }
+    public function company(): void {}
 
     /**
      * @OA\Get(
@@ -560,9 +627,11 @@ class ApiDocumentation
      *     summary="List users",
      *     description="Returns a plain array of users. Pagination metadata is not returned by the current API.",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="User list",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/UsersListResponse",
      *             example={
@@ -587,6 +656,7 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      *
@@ -595,16 +665,20 @@ class ApiDocumentation
      *     tags={"Users"},
      *     summary="Create user",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/UserCreateRequest",
      *             example={"name":"Editor","email":"editor@example.com","password":"secret123","role_id":2}
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="User created",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/UserResponse",
      *             example={
@@ -614,10 +688,12 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/ValidationErrorResponse",
      *             example={
@@ -633,9 +709,7 @@ class ApiDocumentation
      *     )
      * )
      */
-    public function usersCollection(): void
-    {
-    }
+    public function usersCollection(): void {}
 
     /**
      * @OA\Get(
@@ -643,10 +717,13 @@ class ApiDocumentation
      *     tags={"Users"},
      *     summary="Get user detail",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="id", in="path", required=true, description="User ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="User detail",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/UserResponse",
      *             example={
@@ -662,6 +739,7 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found")
      * )
@@ -672,17 +750,22 @@ class ApiDocumentation
      *     summary="Update user",
      *     description="Editable fields: name, email, password, and role_id. Password may be omitted when it should not be changed.",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="id", in="path", required=true, description="User ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/UserUpdateRequest",
      *             example={"name":"Editor Updated","email":"editor@example.com","role_id":2}
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="User updated",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/UserResponse",
      *             example={
@@ -692,6 +775,7 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found"),
      *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse"))
@@ -702,22 +786,24 @@ class ApiDocumentation
      *     tags={"Users"},
      *     summary="Delete user",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="id", in="path", required=true, description="User ID", @OA\Schema(type="integer", example=2)),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="User deleted",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/UserDeleteResponse",
      *             example={"data":null,"message":"User deleted","errors":null}
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found")
      * )
      */
-    public function usersItem(): void
-    {
-    }
+    public function usersItem(): void {}
 
     /**
      * @OA\Post(
@@ -725,25 +811,31 @@ class ApiDocumentation
      *     tags={"Users"},
      *     summary="Change authenticated user password",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/ChangePasswordRequest",
      *             example={"current_password":"secret123","new_password":"newsecret123","confirm_password":"newsecret123"}
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Password updated",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/ChangePasswordResponse",
      *             example={"data":true,"message":"Password updated","errors":null}
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/ValidationErrorResponse",
      *             example={
@@ -755,9 +847,7 @@ class ApiDocumentation
      *     )
      * )
      */
-    public function changePassword(): void
-    {
-    }
+    public function changePassword(): void {}
 
     /**
      * @OA\Get(
@@ -765,9 +855,11 @@ class ApiDocumentation
      *     tags={"Roles"},
      *     summary="List roles",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Role list",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RolesListResponse",
      *             example={
@@ -780,6 +872,7 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      *
@@ -788,16 +881,20 @@ class ApiDocumentation
      *     tags={"Roles"},
      *     summary="Create role",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RoleRequest",
      *             example={"role_name":"Administrator"}
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Role created",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RoleResponse",
      *             example={
@@ -807,10 +904,12 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/ValidationErrorResponse",
      *             example={
@@ -822,9 +921,7 @@ class ApiDocumentation
      *     )
      * )
      */
-    public function rolesCollection(): void
-    {
-    }
+    public function rolesCollection(): void {}
 
     /**
      * @OA\Put(
@@ -832,17 +929,22 @@ class ApiDocumentation
      *     tags={"Roles"},
      *     summary="Update role",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="id", in="path", required=true, description="Role ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RoleRequest",
      *             example={"role_name":"Editor"}
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Role updated",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RoleResponse",
      *             example={
@@ -852,11 +954,13 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found"),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/ValidationErrorResponse",
      *             example={
@@ -873,22 +977,24 @@ class ApiDocumentation
      *     tags={"Roles"},
      *     summary="Delete role",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="id", in="path", required=true, description="Role ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Role deleted",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RoleDeleteResponse",
      *             example={"data":null,"message":"Role deleted","errors":null}
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found")
      * )
      */
-    public function rolesItem(): void
-    {
-    }
+    public function rolesItem(): void {}
 
     /**
      * @OA\Get(
@@ -896,9 +1002,11 @@ class ApiDocumentation
      *     tags={"Menus"},
      *     summary="List menus",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Menu list",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/MenusListResponse",
      *             example={
@@ -927,6 +1035,7 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      *
@@ -935,8 +1044,10 @@ class ApiDocumentation
      *     tags={"Menus"},
      *     summary="Create menu",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/MenuRequest",
      *             example={
@@ -948,9 +1059,11 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Menu created",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/MenuResponse",
      *             example={
@@ -968,12 +1081,11 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
-    public function menusCollection(): void
-    {
-    }
+    public function menusCollection(): void {}
 
     /**
      * @OA\Get(
@@ -982,9 +1094,11 @@ class ApiDocumentation
      *     summary="List menus as tree",
      *     description="Recursive menu tree used by the dynamic sidebar and menu setup screens.",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Menu tree",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/MenuTreeResponse",
      *             example={
@@ -1023,12 +1137,16 @@ class ApiDocumentation
      *     tags={"Menus"},
      *     summary="Get menu detail",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="id", in="path", required=true, description="Menu ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Menu detail",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/MenuResponse")
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found")
      * )
@@ -1038,9 +1156,12 @@ class ApiDocumentation
      *     tags={"Menus"},
      *     summary="Update menu",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="id", in="path", required=true, description="Menu ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/MenuRequest",
      *             example={
@@ -1052,9 +1173,11 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Menu updated",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/MenuResponse",
      *             example={
@@ -1072,6 +1195,7 @@ class ApiDocumentation
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found")
      * )
@@ -1081,22 +1205,24 @@ class ApiDocumentation
      *     tags={"Menus"},
      *     summary="Delete menu",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="id", in="path", required=true, description="Menu ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Menu deleted",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/MenuDeleteResponse",
      *             example={"data":true,"message":"Deleted","errors":null}
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found")
      * )
      */
-    public function menusItem(): void
-    {
-    }
+    public function menusItem(): void {}
 
     /**
      * @OA\Get(
@@ -1105,10 +1231,13 @@ class ApiDocumentation
      *     summary="Get role menu permissions",
      *     description="Recursive checked menu tree used by the dynamic sidebar permission system.",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="role", in="path", required=true, description="Role ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Role menu tree",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RoleMenuTreeResponse",
      *             example={
@@ -1143,27 +1272,31 @@ class ApiDocumentation
      *     tags={"Role Permissions"},
      *     summary="Update role menu permissions",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(name="role", in="path", required=true, description="Role ID", @OA\Schema(type="integer", example=1)),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RoleMenuUpdateRequest",
      *             example={"menu_ids":{1,2,3}}
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Permissions updated",
+     *
      *         @OA\JsonContent(
      *             ref="#/components/schemas/RoleMenuUpdateResponse",
      *             example={"data":true,"message":"Permissions updated","errors":null}
      *         )
      *     ),
+     *
      *     @OA\Response(response=401, description="Unauthorized"),
      *     @OA\Response(response=404, description="Not found")
      * )
      */
-    public function roleMenus(): void
-    {
-    }
+    public function roleMenus(): void {}
 }

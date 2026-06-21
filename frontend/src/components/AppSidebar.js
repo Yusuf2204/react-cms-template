@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import {
@@ -11,28 +11,15 @@ import {
 } from '@coreui/react'
 
 import { AppSidebarNav } from './AppSidebarNav'
-import { loadSidebarNavigation } from '../services/sidebarService'
-import api from '../services/api'
+import { buildSidebarNavigation } from '../services/sidebarService'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
-  const user = useSelector((state) => state.user)
   const company = useSelector((state) => state.company)
-
-  const [navigation, setNavigation] = useState([])
-
-  useEffect(() => {
-    const loadNav = async () => {
-      if (!user?.role_id) return
-
-      const nav = await loadSidebarNavigation(user.role_id)
-      setNavigation(nav)
-    }
-
-    loadNav()
-  }, [user])
+  const navigationTree = useSelector((state) => state.navigation)
+  const navigation = useMemo(() => buildSidebarNavigation(navigationTree), [navigationTree])
 
   return (
     <CSidebar
@@ -55,7 +42,7 @@ const AppSidebar = () => {
               style={{ objectFit: 'contain' }}
             />
           ) : (
-            company?.comp_name || 'Loading...'
+            company?.comp_name || 'CMS'
           )}
         </CSidebarBrand>
 
@@ -70,9 +57,7 @@ const AppSidebar = () => {
 
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
-          onClick={() =>
-            dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })
-          }
+          onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
         />
       </CSidebarFooter>
     </CSidebar>

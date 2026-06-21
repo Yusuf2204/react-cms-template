@@ -8,17 +8,13 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
-import {
-  cilLockLocked,
-  cilSettings,
-} from '@coreui/icons'
+import { cilLockLocked, cilSettings } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import api from '../../services/api'
 import avatar8 from './../../assets/images/avatars/8.jpg'
 
 const AppHeaderDropdown = () => {
-
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -39,9 +35,7 @@ const AppHeaderDropdown = () => {
       </CDropdownToggle>
 
       <CDropdownMenu className="pt-0" placement="bottom-end">
-        <CDropdownHeader className="bg-body-secondary fw-semibold my-2">
-          Settings
-        </CDropdownHeader>
+        <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
 
         <CDropdownItem>
           <CIcon icon={cilSettings} className="me-2" />
@@ -54,7 +48,6 @@ const AppHeaderDropdown = () => {
           <CIcon icon={cilLockLocked} className="me-2" />
           Logout
         </CDropdownItem>
-
       </CDropdownMenu>
     </CDropdown>
   )

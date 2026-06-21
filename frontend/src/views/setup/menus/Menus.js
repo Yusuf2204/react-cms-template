@@ -12,11 +12,12 @@ import {
   CModalHeader,
   CModalTitle,
 } from '@coreui/react'
-import { CIcon } from '@coreui/icons-react';
-import { cilReload } from '@coreui/icons';
+import { CIcon } from '@coreui/icons-react'
+import { cilReload } from '@coreui/icons'
 import MenusTable from './MenusTable'
 import MenusForm from './MenusForm'
 import api from '../../../services/api'
+import { toastSuccess } from '../../../services/toastService'
 
 const Menus = () => {
   const [menus, setMenus] = useState([])
@@ -24,6 +25,7 @@ const Menus = () => {
   const [loading, setLoading] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchMenus = async () => {
     setLoading(true)
@@ -50,10 +52,13 @@ const Menus = () => {
   }
 
   const handleConfirmDelete = async () => {
+    setDeleting(true)
     try {
       await api.delete(`/menus/${deleteId}`)
+      toastSuccess('Menu deleted')
       fetchMenus()
     } finally {
+      setDeleting(false)
       setConfirmOpen(false)
       setDeleteId(null)
     }
@@ -82,9 +87,7 @@ const Menus = () => {
 
       <CCol md={5}>
         <CCard>
-          <CCardHeader>
-            {selectedMenu ? 'Edit Menu' : 'Add Menu'}
-          </CCardHeader>
+          <CCardHeader>{selectedMenu ? 'Edit Menu' : 'Add Menu'}</CCardHeader>
           <CCardBody>
             <MenusForm
               menu={selectedMenu}
@@ -101,16 +104,14 @@ const Menus = () => {
           <CModalTitle>Confirm Delete</CModalTitle>
         </CModalHeader>
 
-        <CModalBody>
-          Are you sure you want to delete this menu?
-        </CModalBody>
+        <CModalBody>Are you sure you want to delete this menu?</CModalBody>
 
         <CModalFooter>
           <CButton color="secondary" onClick={() => setConfirmOpen(false)}>
             Cancel
           </CButton>
-          <CButton color="danger" onClick={handleConfirmDelete}>
-            Delete
+          <CButton color="danger" onClick={handleConfirmDelete} disabled={deleting}>
+            {deleting ? 'Deleting...' : 'Delete'}
           </CButton>
         </CModalFooter>
       </CModal>

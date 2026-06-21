@@ -1,30 +1,33 @@
-import React, { useEffect, useState } from 'react'
-import { CFormSwitch, CButton, CAlert } from '@coreui/react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { CFormSwitch, CButton, CSpinner } from '@coreui/react'
+import { useDispatch, useSelector } from 'react-redux'
 import api from '../../../services/api'
+import { toastError, toastSuccess } from '../../../services/toastService'
 
 const RolepermissionsForm = ({ role }) => {
+  const dispatch = useDispatch()
+  const currentUser = useSelector((state) => state.user)
   const [menus, setMenus] = useState([])
   const [loading, setLoading] = useState(false)
-  const [alert, setAlert] = useState({
-    show: false,
-    color: 'success',
-    message: '',
-  })
+  const [saving, setSaving] = useState(false)
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true)
-    const res = await api.get(`/role-menus/${role.id}`)
-    setMenus(res.data.data)
-    setLoading(false)
-  }
+    try {
+      const res = await api.get(`/role-menus/${role.id}`)
+      setMenus(res.data.data)
+    } finally {
+      setLoading(false)
+    }
+  }, [role.id])
 
   useEffect(() => {
     loadData()
-  }, [role])
+  }, [loadData])
 
   // recursive toggle
   const toggleMenu = (list, id) =>
-    list.map(menu => {
+    list.map((menu) => {
       if (menu.id === id) {
         return { ...menu, checked: !menu.checked }
       }
@@ -40,12 +43,12 @@ const RolepermissionsForm = ({ role }) => {
     })
 
   const toggle = (id) => {
-    setMenus(prev => toggleMenu(prev, id))
+    setMenus((prev) => toggleMenu(prev, id))
   }
 
   // flatten checked ids
   const collectChecked = (list, result = []) => {
-    list.forEach(menu => {
+    list.forEach((menu) => {
       if (menu.checked) result.push(menu.id)
       if (menu.children?.length) collectChecked(menu.children, result)
     })
@@ -53,6 +56,7 @@ const RolepermissionsForm = ({ role }) => {
   }
 
   const handleSave = async () => {
+    setSaving(true)
     try {
       const menuIds = collectChecked(menus)
 
@@ -60,22 +64,19 @@ const RolepermissionsForm = ({ role }) => {
         menu_ids: menuIds,
       })
 
-      setAlert({
-        show: true,
-        color: 'success',
-        message: 'Permissions updated successfully',
-      })
+      if (Number(currentUser?.role_id) === Number(role.id)) {
+        const response = await api.get(`/role-menus/${role.id}`)
+        dispatch({
+          type: 'set',
+          navigation: response.data.data,
+        })
+      }
 
-      setTimeout(() => {
-        window.location.reload()
-      }, 800)
-
+      toastSuccess('Permissions updated')
     } catch (err) {
-      setAlert({
-        show: true,
-        color: 'danger',
-        message: 'Failed to save permissions',
-      })
+      toastError(err.userMessage || 'Failed to save permissions')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -83,32 +84,35 @@ const RolepermissionsForm = ({ role }) => {
     <div key={menu.id} style={{ paddingLeft: depth * 20 }}>
       <div className="d-flex justify-content-between align-items-center mb-2">
         <strong>{menu.menu_name}</strong>
-        <CFormSwitch
-          checked={menu.checked}
-          onChange={() => toggle(menu.id)}
-        />
+        <CFormSwitch checked={menu.checked} onChange={() => toggle(menu.id)} disabled={saving} />
       </div>
 
-      {menu.children?.map(child =>
-        renderMenu(child, depth + 1)
-      )}
+      {menu.children?.map((child) => renderMenu(child, depth + 1))}
     </div>
   )
 
-  if (loading) return <p>Loading...</p>
+  if (loading) {
+    return (
+      <div className="d-flex align-items-center text-body-secondary py-3">
+        <CSpinner size="sm" className="me-2" />
+        Loading permissions...
+      </div>
+    )
+  }
 
   return (
     <>
-      {alert.show && (
-        <CAlert color={alert.color} dismissible>
-          {alert.message}
-        </CAlert>
-      )}
+      {menus.map((menu) => renderMenu(menu))}
 
-      {menus.map(menu => renderMenu(menu))}
-
-      <CButton color="primary" className="mt-3" onClick={handleSave}>
-        Save Permissions
+      <CButton color="primary" className="mt-3" onClick={handleSave} disabled={saving}>
+        {saving ? (
+          <>
+            <CSpinner size="sm" className="me-2" />
+            Saving...
+          </>
+        ) : (
+          'Save Permissions'
+        )}
       </CButton>
     </>
   )

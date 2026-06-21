@@ -1,53 +1,41 @@
-import React, { useEffect, useState } from 'react'
-import {
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CForm,
-  CFormInput,
-  CButton,
-  CAlert,
-  CSpinner,
-} from '@coreui/react'
+import React, { useState } from 'react'
+import { CCard, CCardBody, CCardHeader, CForm, CFormInput, CButton, CSpinner } from '@coreui/react'
+import { useSelector } from 'react-redux'
 import api from '../../../services/api'
+import { toastSuccess } from '../../../services/toastService'
+import { getFieldError } from '../../../utils/formErrors'
 
 const Changepassword = () => {
-  const [email, setEmail] = useState('')
+  const user = useSelector((state) => state.user)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [alert, setAlert] = useState(null)
-
-  useEffect(() => {
-    const loadMe = async () => {
-      const res = await api.get('/me')
-      setEmail(res.data.data.user.email)
-    }
-
-    loadMe()
-  }, [])
+  const [errors, setErrors] = useState({})
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const nextErrors = {}
 
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setAlert({ type: 'warning', message: 'All fields are required.' })
-      return
-    }
+    if (!currentPassword) nextErrors.current_password = ['Current password is required.']
+    if (!newPassword) nextErrors.new_password = ['New password is required.']
+    if (!confirmPassword) nextErrors.confirm_password = ['Password confirmation is required.']
 
-    if (newPassword.length < 6) {
-      setAlert({ type: 'warning', message: 'New password must be at least 6 characters.' })
-      return
+    if (newPassword && newPassword.length < 6) {
+      nextErrors.new_password = ['New password must be at least 6 characters.']
     }
 
     if (newPassword !== confirmPassword) {
-      setAlert({ type: 'warning', message: 'Password confirmation does not match.' })
+      nextErrors.confirm_password = ['Password confirmation does not match.']
+    }
+
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors)
       return
     }
 
     setLoading(true)
-    setAlert(null)
+    setErrors({})
 
     try {
       await api.post('/change-password', {
@@ -56,7 +44,7 @@ const Changepassword = () => {
         confirm_password: confirmPassword,
       })
 
-      setAlert({ type: 'success', message: 'Password updated. Please login again.' })
+      toastSuccess('Password changed. Please login again.')
 
       setCurrentPassword('')
       setNewPassword('')
@@ -67,12 +55,8 @@ const Changepassword = () => {
         localStorage.removeItem('token')
         window.location.href = '/login'
       }, 1500)
-
     } catch (err) {
-      setAlert({
-        type: 'danger',
-        message: err.response?.data?.message || 'Failed to update password',
-      })
+      setErrors(err.validationErrors || {})
     } finally {
       setLoading(false)
     }
@@ -82,30 +66,20 @@ const Changepassword = () => {
     <CCard>
       <CCardHeader>Change Password</CCardHeader>
       <CCardBody>
-        {alert && (
-          <CAlert
-            color={alert.type}
-            dismissible
-            onClose={() => setAlert(null)}
-            className="mb-3"
-          >
-            {alert.message}
-          </CAlert>
-        )}
-
         <CForm onSubmit={handleSubmit}>
-          <CFormInput
-            label="Email"
-            value={email}
-            readOnly
-            className="mb-3"
-          />
+          <CFormInput label="Email" value={user?.email || ''} readOnly className="mb-3" />
 
           <CFormInput
             type="password"
             label="Current Password"
             value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
+            onChange={(e) => {
+              setErrors({ ...errors, current_password: null })
+              setCurrentPassword(e.target.value)
+            }}
+            invalid={Boolean(getFieldError(errors, 'current_password'))}
+            feedbackInvalid={getFieldError(errors, 'current_password')}
+            disabled={loading}
             className="mb-3"
           />
 
@@ -113,7 +87,13 @@ const Changepassword = () => {
             type="password"
             label="New Password"
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={(e) => {
+              setErrors({ ...errors, new_password: null })
+              setNewPassword(e.target.value)
+            }}
+            invalid={Boolean(getFieldError(errors, 'new_password'))}
+            feedbackInvalid={getFieldError(errors, 'new_password')}
+            disabled={loading}
             className="mb-3"
           />
 
@@ -121,12 +101,25 @@ const Changepassword = () => {
             type="password"
             label="Confirm Password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setErrors({ ...errors, confirm_password: null })
+              setConfirmPassword(e.target.value)
+            }}
+            invalid={Boolean(getFieldError(errors, 'confirm_password'))}
+            feedbackInvalid={getFieldError(errors, 'confirm_password')}
+            disabled={loading}
             className="mb-4"
           />
 
           <CButton type="submit" color="primary" disabled={loading}>
-            {loading ? <CSpinner size="sm" /> : 'Save Password'}
+            {loading ? (
+              <>
+                <CSpinner size="sm" className="me-2" />
+                Saving...
+              </>
+            ) : (
+              'Save Password'
+            )}
           </CButton>
         </CForm>
       </CCardBody>

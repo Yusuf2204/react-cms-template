@@ -1,7 +1,30 @@
 import { CNavItem, CNavGroup } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import * as icons from '@coreui/icons'
-import api from './api'
+import {
+  cilBuilding,
+  cilHamburgerMenu,
+  cilListRich,
+  cilLockLocked,
+  cilMenu,
+  cilPeople,
+  cilSettings,
+  cilShieldAlt,
+  cilSpeedometer,
+  cilUser,
+} from '@coreui/icons'
+
+const icons = {
+  cilBuilding,
+  cilHamburgerMenu,
+  cilListRich,
+  cilLockLocked,
+  cilMenu,
+  cilPeople,
+  cilSettings,
+  cilShieldAlt,
+  cilSpeedometer,
+  cilUser,
+}
 
 const resolveIcon = (iconName) => {
   if (!iconName) return null
@@ -15,8 +38,8 @@ const resolveIcon = (iconName) => {
 ================================ */
 const filterTree = (menus) =>
   menus
-    .filter(menu => menu.checked)
-    .map(menu => ({
+    .filter((menu) => menu.checked)
+    .map((menu) => ({
       ...menu,
       children: filterTree(menu.children || []),
     }))
@@ -25,7 +48,7 @@ const filterTree = (menus) =>
    BUILD COREUI NAV
 ================================ */
 const buildNav = (menus) =>
-  menus.map(menu =>
+  menus.map((menu) =>
     menu.children.length
       ? {
           component: CNavGroup,
@@ -38,15 +61,7 @@ const buildNav = (menus) =>
           name: menu.menu_name,
           to: menu.menu_path,
           icon: resolveIcon(menu.menu_icon),
-        }
+        },
   )
 
-export const loadSidebarNavigation = async (roleId) => {
-  if (!roleId) return []
-
-  const res = await api.get(`/role-menus/${roleId}`)
-
-  const allowedTree = filterTree(res.data.data)
-
-  return buildNav(allowedTree)
-}
+export const buildSidebarNavigation = (menus = []) => buildNav(filterTree(menus))

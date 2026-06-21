@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import {
-  CForm,
-  CFormInput,
-  CButton,
-  CAlert,
-} from '@coreui/react'
+import { CForm, CFormInput, CButton, CSpinner } from '@coreui/react'
 import api from '../../../services/api'
 import { useDispatch } from 'react-redux'
+import { toastSuccess } from '../../../services/toastService'
+import { getFieldError } from '../../../utils/formErrors'
 
 const CompanyForm = ({ company }) => {
   const dispatch = useDispatch()
@@ -18,8 +15,8 @@ const CompanyForm = ({ company }) => {
     fav_icon: '',
   })
 
-  const [success, setSuccess] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState({})
 
   /* ===============================
      SYNC REDUX → FORM
@@ -39,7 +36,7 @@ const CompanyForm = ({ company }) => {
      INPUT HANDLER
   ============================== */
   const handleChange = (e) => {
-    setSuccess(false) // reset alert kalau edit lagi
+    setErrors({ ...errors, [e.target.name]: null })
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
@@ -49,6 +46,7 @@ const CompanyForm = ({ company }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
+    setErrors({})
 
     try {
       const res = await api.put('/company', form)
@@ -59,10 +57,9 @@ const CompanyForm = ({ company }) => {
         company: res.data.data,
       })
 
-      setSuccess(true)
+      toastSuccess('Company updated')
     } catch (err) {
-      console.error(err)
-      alert('Failed to update company')
+      setErrors(err.validationErrors || {})
     } finally {
       setSaving(false)
     }
@@ -81,20 +78,15 @@ const CompanyForm = ({ company }) => {
 
   return (
     <CForm onSubmit={handleSubmit}>
-
-      {/* SUCCESS ALERT */}
-      {success && (
-        <CAlert color="success" dismissible>
-          Company updated successfully
-        </CAlert>
-      )}
-
       {/* COMPANY NAME */}
       <CFormInput
         label="Company Name"
         name="comp_name"
         value={form.comp_name}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'comp_name'))}
+        feedbackInvalid={getFieldError(errors, 'comp_name')}
+        disabled={saving}
         className="mb-3"
       />
 
@@ -104,6 +96,9 @@ const CompanyForm = ({ company }) => {
         name="app_title"
         value={form.app_title}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'app_title'))}
+        feedbackInvalid={getFieldError(errors, 'app_title')}
+        disabled={saving}
         className="mb-3"
       />
 
@@ -113,21 +108,18 @@ const CompanyForm = ({ company }) => {
         label="Company Logo"
         accept="image/*"
         className="mb-2"
+        disabled={saving}
         onChange={async (e) => {
           const file = e.target.files[0]
           if (!file) return
 
           const base64 = await fileToBase64(file)
-          setForm(prev => ({ ...prev, comp_logo: base64 }))
+          setForm((prev) => ({ ...prev, comp_logo: base64 }))
         }}
       />
 
       {form.comp_logo && (
-        <img
-          src={form.comp_logo}
-          alt="logo preview"
-          style={{ height: 60, marginBottom: 20 }}
-        />
+        <img src={form.comp_logo} alt="logo preview" style={{ height: 60, marginBottom: 20 }} />
       )}
 
       <br />
@@ -138,30 +130,33 @@ const CompanyForm = ({ company }) => {
         label="Favicon"
         accept="image/*"
         className="mb-2"
+        disabled={saving}
         onChange={async (e) => {
           const file = e.target.files[0]
           if (!file) return
 
           const base64 = await fileToBase64(file)
-          setForm(prev => ({ ...prev, fav_icon: base64 }))
+          setForm((prev) => ({ ...prev, fav_icon: base64 }))
         }}
       />
 
       {form.fav_icon && (
-        <img
-          src={form.fav_icon}
-          alt="favicon preview"
-          style={{ height: 32, marginBottom: 20 }}
-        />
+        <img src={form.fav_icon} alt="favicon preview" style={{ height: 32, marginBottom: 20 }} />
       )}
 
       {/* BUTTON */}
       <div className="mt-3">
         <CButton type="submit" color="primary" disabled={saving}>
-          {saving ? 'Saving...' : 'Save Company Settings'}
+          {saving ? (
+            <>
+              <CSpinner size="sm" className="me-2" />
+              Saving...
+            </>
+          ) : (
+            'Save Company Settings'
+          )}
         </CButton>
       </div>
-
     </CForm>
   )
 }

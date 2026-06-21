@@ -7,7 +7,8 @@ import 'simplebar-react/dist/simplebar.min.css'
 
 import { CBadge, CNavLink, CSidebarNav, CNavItem, CNavGroup } from '@coreui/react'
 
-export const AppSidebarNav = ({ items }) => {4
+export const AppSidebarNav = ({ items }) => {
+  4
 
   const componentMap = {
     CNavItem,
@@ -40,10 +41,7 @@ export const AppSidebarNav = ({ items }) => {4
     return (
       <Component as="div" key={index}>
         {rest.to || rest.href ? (
-          <CNavLink
-            {...(rest.to && { as: NavLink })}
-            {...rest}
-          >
+          <CNavLink {...(rest.to && { as: NavLink })} {...rest}>
             {navLink(name, icon, badge, indent)}
           </CNavLink>
         ) : (
@@ -58,9 +56,7 @@ export const AppSidebarNav = ({ items }) => {4
 
     return (
       <Component key={index} toggler={navLink(name, icon)} {...rest}>
-        {items.map((child, i) =>
-          child.items ? navGroup(child, i) : navItem(child, i, true)
-        )}
+        {items.map((child, i) => (child.items ? navGroup(child, i) : navItem(child, i, true)))}
       </Component>
     )
   }

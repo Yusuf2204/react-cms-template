@@ -12,19 +12,22 @@ import {
   CModalHeader,
   CModalTitle,
 } from '@coreui/react'
-import { CIcon } from '@coreui/icons-react';
-import { cilReload } from '@coreui/icons';
+import { CIcon } from '@coreui/icons-react'
+import { cilReload } from '@coreui/icons'
+import { useSelector } from 'react-redux'
 import UsersTable from './UsersTable'
 import UsersForm from './UsersForm'
 import api from '../../../services/api'
+import { toastSuccess } from '../../../services/toastService'
 
 const Users = () => {
   const [users, setUsers] = useState([])
   const [selectedUser, setSelectedUser] = useState(null)
-  const [currentUser, setCurrentUser] = useState(null)
+  const currentUser = useSelector((state) => state.user)
   const [loading, setLoading] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchUsers = async () => {
     setLoading(true)
@@ -36,14 +39,8 @@ const Users = () => {
     }
   }
 
-  const fetchCurrentUser = async () => {
-    const res = await api.get('/me')
-    setCurrentUser(res.data.data)
-  }
-
   useEffect(() => {
     fetchUsers()
-    fetchCurrentUser()
   }, [])
 
   const handleSaved = () => {
@@ -57,10 +54,13 @@ const Users = () => {
   }
 
   const handleConfirmDelete = async () => {
+    setDeleting(true)
     try {
       await api.delete(`/users/${deleteId}`)
+      toastSuccess('User deleted')
       fetchUsers()
     } finally {
+      setDeleting(false)
       setConfirmOpen(false)
       setDeleteId(null)
     }
@@ -73,7 +73,7 @@ const Users = () => {
           <CCardHeader className="d-flex justify-content-between align-items-center">
             User List
             <CButton size="sm" color="secondary" onClick={fetchUsers}>
-             <CIcon icon={cilReload} />
+              <CIcon icon={cilReload} />
             </CButton>
           </CCardHeader>
           <CCardBody>
@@ -90,9 +90,7 @@ const Users = () => {
 
       <CCol md={5}>
         <CCard>
-          <CCardHeader>
-            {selectedUser ? 'Edit User' : 'Add User'}
-          </CCardHeader>
+          <CCardHeader>{selectedUser ? 'Edit User' : 'Add User'}</CCardHeader>
           <CCardBody>
             <UsersForm
               user={selectedUser}
@@ -108,16 +106,14 @@ const Users = () => {
           <CModalTitle>Confirm Delete</CModalTitle>
         </CModalHeader>
 
-        <CModalBody>
-          Are you sure you want to delete this user?
-        </CModalBody>
+        <CModalBody>Are you sure you want to delete this user?</CModalBody>
 
         <CModalFooter>
           <CButton color="secondary" onClick={() => setConfirmOpen(false)}>
             Cancel
           </CButton>
-          <CButton color="danger" onClick={handleConfirmDelete}>
-            Delete
+          <CButton color="danger" onClick={handleConfirmDelete} disabled={deleting}>
+            {deleting ? 'Deleting...' : 'Delete'}
           </CButton>
         </CModalFooter>
       </CModal>

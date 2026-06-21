@@ -7,10 +7,18 @@ import {
   CTableBody,
   CTableDataCell,
   CButton,
+  CSpinner,
 } from '@coreui/react'
 
 const RolesTable = ({ roles, loading, onSelect, onDelete }) => {
-  if (loading) return <p>Loading...</p>
+  if (loading) {
+    return (
+      <div className="d-flex align-items-center text-body-secondary py-3">
+        <CSpinner size="sm" className="me-2" />
+        Loading roles...
+      </div>
+    )
+  }
 
   return (
     <CTable hover>
@@ -24,19 +32,12 @@ const RolesTable = ({ roles, loading, onSelect, onDelete }) => {
       <CTableBody>
         {roles.map((r) => (
           <CTableRow key={r.id}>
-            <CTableDataCell
-              onClick={() => onSelect(r)}
-              style={{ cursor: 'pointer' }}
-            >
+            <CTableDataCell onClick={() => onSelect(r)} style={{ cursor: 'pointer' }}>
               {r.role_name}
             </CTableDataCell>
 
             <CTableDataCell>
-              <CButton
-                size="sm"
-                color="danger"
-                onClick={() => onDelete(r.id)}
-              >
+              <CButton size="sm" color="danger" onClick={() => onDelete(r.id)}>
                 Delete
               </CButton>
             </CTableDataCell>

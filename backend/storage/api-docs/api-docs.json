@@ -106,7 +106,6 @@
                                 },
                                 "example": {
                                     "data": {
-                                        "token": "1|xxxxx",
                                         "user": {
                                             "id": 1,
                                             "name": "Admin",
@@ -1453,6 +1452,20 @@
                             },
                             "user": {
                                 "$ref": "#/components/schemas/AuthUser"
+                            },
+                            "company": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Company"
+                                    }
+                                ],
+                                "nullable": true
+                            },
+                            "navigation": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/RoleMenuTree"
+                                }
                             }
                         },
                         "type": "object"
@@ -1497,13 +1510,22 @@
                 "properties": {
                     "data": {
                         "properties": {
-                            "token": {
-                                "type": "string",
-                                "example": "1|xxxxx",
-                                "nullable": true
-                            },
                             "user": {
                                 "$ref": "#/components/schemas/AuthUser"
+                            },
+                            "company": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Company"
+                                    }
+                                ],
+                                "nullable": true
+                            },
+                            "navigation": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/RoleMenuTree"
+                                }
                             }
                         },
                         "type": "object"

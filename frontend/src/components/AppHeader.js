@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { NavLink } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   CContainer,
@@ -10,20 +9,10 @@ import {
   CHeader,
   CHeaderNav,
   CHeaderToggler,
-  CNavLink,
-  CNavItem,
   useColorModes,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import {
-  cilBell,
-  cilContrast,
-  cilEnvelopeOpen,
-  cilList,
-  cilMenu,
-  cilMoon,
-  cilSun,
-} from '@coreui/icons'
+import { cilContrast, cilMenu, cilMoon, cilSun } from '@coreui/icons'
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
@@ -55,24 +44,6 @@ const AppHeader = () => {
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
         <CHeaderNav>
-          <CNavItem>
-            <CNavLink href="#">
-              <span className="me-2">
-                {new Intl.DateTimeFormat('en-GB', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  weekday: 'long',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZone: 'Asia/Jakarta',
-                }).format(new Date(Date.now() - 1000 * 60 * 60 * 24))}
-              </span>
-            </CNavLink>
-          </CNavItem>
-          <li className="nav-item py-1">
-            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
-          </li>
           <CDropdown variant="nav-item" placement="bottom-end">
             <CDropdownToggle caret={false}>
               {colorMode === 'dark' ? (

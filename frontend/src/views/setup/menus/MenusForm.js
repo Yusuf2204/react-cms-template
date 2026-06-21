@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { CForm, CFormInput, CButton } from '@coreui/react'
+import { CForm, CFormInput, CButton, CSpinner } from '@coreui/react'
 import Select from 'react-select'
 import api from '../../../services/api'
+import { toastSuccess } from '../../../services/toastService'
+import { getFieldError } from '../../../utils/formErrors'
 
 const MenusForm = ({ menu, menus, onReset, onSaved }) => {
   const [form, setForm] = useState({
@@ -11,10 +13,12 @@ const MenusForm = ({ menu, menus, onReset, onSaved }) => {
     menu_parent_id: null,
     menu_order: 0,
   })
+  const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState({})
 
   const parentOptions = menus
-    .filter(m => !menu || m.id !== menu.id)
-    .map(m => ({
+    .filter((m) => !menu || m.id !== menu.id)
+    .map((m) => ({
       value: m.id,
       label: m.menu_name,
     }))
@@ -40,24 +44,36 @@ const MenusForm = ({ menu, menus, onReset, onSaved }) => {
   }, [menu])
 
   const handleChange = (e) => {
+    setErrors({ ...errors, [e.target.name]: null })
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   const handleParentChange = (selected) => {
+    setErrors({ ...errors, menu_parent_id: null })
     setForm({ ...form, menu_parent_id: selected ? selected.value : null })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSaving(true)
+    setErrors({})
 
-    if (menu) {
-      await api.put(`/menus/${menu.id}`, form)
-    } else {
-      await api.post('/menus', form)
+    try {
+      if (menu) {
+        await api.put(`/menus/${menu.id}`, form)
+        toastSuccess('Menu updated')
+      } else {
+        await api.post('/menus', form)
+        toastSuccess('Menu created')
+      }
+
+      onSaved()
+      onReset()
+    } catch (err) {
+      setErrors(err.validationErrors || {})
+    } finally {
+      setSaving(false)
     }
-
-    onSaved()
-    onReset()
   }
 
   return (
@@ -67,6 +83,9 @@ const MenusForm = ({ menu, menus, onReset, onSaved }) => {
         name="menu_name"
         value={form.menu_name}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'menu_name'))}
+        feedbackInvalid={getFieldError(errors, 'menu_name')}
+        disabled={saving}
         className="mb-3"
       />
 
@@ -75,6 +94,9 @@ const MenusForm = ({ menu, menus, onReset, onSaved }) => {
         name="menu_path"
         value={form.menu_path}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'menu_path'))}
+        feedbackInvalid={getFieldError(errors, 'menu_path')}
+        disabled={saving}
         className="mb-3"
       />
 
@@ -83,6 +105,9 @@ const MenusForm = ({ menu, menus, onReset, onSaved }) => {
         name="menu_icon"
         value={form.menu_icon}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'menu_icon'))}
+        feedbackInvalid={getFieldError(errors, 'menu_icon')}
+        disabled={saving}
         className="mb-3"
       />
 
@@ -93,13 +118,15 @@ const MenusForm = ({ menu, menus, onReset, onSaved }) => {
           className="react-select-container"
           options={parentOptions}
           value={
-            form.menu_parent_id
-              ? parentOptions.find(o => o.value === form.menu_parent_id)
-              : null
+            form.menu_parent_id ? parentOptions.find((o) => o.value === form.menu_parent_id) : null
           }
           onChange={handleParentChange}
           isClearable
+          isDisabled={saving}
         />
+        {getFieldError(errors, 'menu_parent_id') && (
+          <div className="invalid-feedback d-block">{getFieldError(errors, 'menu_parent_id')}</div>
+        )}
       </div>
 
       <CFormInput
@@ -108,14 +135,26 @@ const MenusForm = ({ menu, menus, onReset, onSaved }) => {
         type="number"
         value={form.menu_order}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'menu_order'))}
+        feedbackInvalid={getFieldError(errors, 'menu_order')}
+        disabled={saving}
         className="mb-3"
       />
 
-      <CButton color="primary" className="me-2" type="submit">
-        {menu ? 'Update Menu' : 'Create Menu'}
+      <CButton color="primary" className="me-2" type="submit" disabled={saving}>
+        {saving ? (
+          <>
+            <CSpinner size="sm" className="me-2" />
+            {menu ? 'Updating...' : 'Creating...'}
+          </>
+        ) : menu ? (
+          'Update Menu'
+        ) : (
+          'Create Menu'
+        )}
       </CButton>
 
-      <CButton color="secondary" type="button" onClick={onReset}>
+      <CButton color="secondary" type="button" onClick={onReset} disabled={saving}>
         Reset
       </CButton>
     </CForm>

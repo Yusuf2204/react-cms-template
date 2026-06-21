@@ -12,11 +12,12 @@ import {
   CModalHeader,
   CModalTitle,
 } from '@coreui/react'
-import { CIcon } from '@coreui/icons-react';
-import { cilReload } from '@coreui/icons';
+import { CIcon } from '@coreui/icons-react'
+import { cilReload } from '@coreui/icons'
 import RolesTable from './RolesTable'
 import RolesForm from './RolesForm'
 import api from '../../../services/api'
+import { toastSuccess } from '../../../services/toastService'
 
 const Roles = () => {
   const [roles, setRoles] = useState([])
@@ -24,6 +25,7 @@ const Roles = () => {
   const [loading, setLoading] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchRoles = async () => {
     setLoading(true)
@@ -50,10 +52,13 @@ const Roles = () => {
   }
 
   const handleConfirmDelete = async () => {
+    setDeleting(true)
     try {
       await api.delete(`/roles/${deleteId}`)
+      toastSuccess('Role deleted')
       fetchRoles()
     } finally {
+      setDeleting(false)
       setConfirmOpen(false)
       setDeleteId(null)
     }
@@ -82,9 +87,7 @@ const Roles = () => {
 
       <CCol md={5}>
         <CCard>
-          <CCardHeader>
-            {selectedRole ? 'Edit Role' : 'Add Role'}
-          </CCardHeader>
+          <CCardHeader>{selectedRole ? 'Edit Role' : 'Add Role'}</CCardHeader>
           <CCardBody>
             <RolesForm
               role={selectedRole}
@@ -96,23 +99,21 @@ const Roles = () => {
       </CCol>
 
       <CModal visible={confirmOpen} onClose={() => setConfirmOpen(false)}>
-          <CModalHeader>
-            <CModalTitle>Confirm Delete</CModalTitle>
-          </CModalHeader>
+        <CModalHeader>
+          <CModalTitle>Confirm Delete</CModalTitle>
+        </CModalHeader>
 
-          <CModalBody>
-            Are you sure you want to delete this role?
-          </CModalBody>
+        <CModalBody>Are you sure you want to delete this role?</CModalBody>
 
-          <CModalFooter>
-            <CButton color="secondary" onClick={() => setConfirmOpen(false)}>
-              Cancel
-            </CButton>
-            <CButton color="danger" onClick={handleConfirmDelete}>
-              Delete
-            </CButton>
-          </CModalFooter>
-        </CModal>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setConfirmOpen(false)}>
+            Cancel
+          </CButton>
+          <CButton color="danger" onClick={handleConfirmDelete} disabled={deleting}>
+            {deleting ? 'Deleting...' : 'Delete'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </CRow>
   )
 }

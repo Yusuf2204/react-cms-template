@@ -5,6 +5,7 @@ const initialState = {
   theme: 'light',
   user: null,
   company: null,
+  navigation: [],
 }
 
 const changeState = (state = initialState, { type, ...rest }) => {

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { CForm, CFormInput, CButton } from '@coreui/react'
+import { CForm, CFormInput, CButton, CSpinner } from '@coreui/react'
 import Select from 'react-select'
 import api from '../../../services/api'
+import { toastSuccess } from '../../../services/toastService'
+import { getFieldError } from '../../../utils/formErrors'
 
 const UsersForm = ({ user, onReset, onSaved }) => {
   const [form, setForm] = useState({
@@ -12,11 +14,13 @@ const UsersForm = ({ user, onReset, onSaved }) => {
   })
 
   const [roles, setRoles] = useState([])
+  const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState({})
 
   const fetchRoles = async () => {
     const res = await api.get('/roles')
 
-    const options = res.data.data.map(r => ({
+    const options = res.data.data.map((r) => ({
       value: r.id,
       label: r.role_name,
     }))
@@ -47,34 +51,46 @@ const UsersForm = ({ user, onReset, onSaved }) => {
   }, [user])
 
   const handleChange = (e) => {
+    setErrors({ ...errors, [e.target.name]: null })
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   const handleRoleChange = (selected) => {
+    setErrors({ ...errors, role_id: null })
     setForm({ ...form, role_id: selected ? selected.value : null })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSaving(true)
+    setErrors({})
 
     const payload = { ...form }
     if (user && !payload.password) delete payload.password
 
-    if (user) {
-      await api.put(`/users/${user.id}`, payload)
-    } else {
-      await api.post('/users', payload)
+    try {
+      if (user) {
+        await api.put(`/users/${user.id}`, payload)
+        toastSuccess('User updated')
+      } else {
+        await api.post('/users', payload)
+        toastSuccess('User created')
+      }
+
+      setForm({
+        name: '',
+        email: '',
+        password: '',
+        role_id: null,
+      })
+
+      onSaved()
+      onReset()
+    } catch (err) {
+      setErrors(err.validationErrors || {})
+    } finally {
+      setSaving(false)
     }
-
-    setForm({
-      name: '',
-      email: '',
-      password: '',
-      role_id: null,
-    })
-
-    onSaved()
-    onReset()
   }
 
   return (
@@ -84,6 +100,9 @@ const UsersForm = ({ user, onReset, onSaved }) => {
         name="name"
         value={form.name}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'name'))}
+        feedbackInvalid={getFieldError(errors, 'name')}
+        disabled={saving}
         className="mb-3"
       />
 
@@ -92,6 +111,9 @@ const UsersForm = ({ user, onReset, onSaved }) => {
         name="email"
         value={form.email}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'email'))}
+        feedbackInvalid={getFieldError(errors, 'email')}
+        disabled={saving}
         className="mb-3"
       />
 
@@ -101,6 +123,9 @@ const UsersForm = ({ user, onReset, onSaved }) => {
         name="password"
         value={form.password}
         onChange={handleChange}
+        invalid={Boolean(getFieldError(errors, 'password'))}
+        feedbackInvalid={getFieldError(errors, 'password')}
+        disabled={saving}
         className="mb-3"
       />
 
@@ -111,21 +136,30 @@ const UsersForm = ({ user, onReset, onSaved }) => {
           className="react-select-container"
           options={roles}
           placeholder="Select role..."
-          value={
-            form.role_id
-              ? roles.find(r => r.value === form.role_id)
-              : null
-          }
+          value={form.role_id ? roles.find((r) => r.value === form.role_id) : null}
           onChange={handleRoleChange}
           isClearable
+          isDisabled={saving}
         />
+        {getFieldError(errors, 'role_id') && (
+          <div className="invalid-feedback d-block">{getFieldError(errors, 'role_id')}</div>
+        )}
       </div>
 
-      <CButton type="submit" color="primary">
-        {user ? 'Update User' : 'Create User'}
+      <CButton type="submit" color="primary" disabled={saving}>
+        {saving ? (
+          <>
+            <CSpinner size="sm" className="me-2" />
+            {user ? 'Updating...' : 'Creating...'}
+          </>
+        ) : user ? (
+          'Update User'
+        ) : (
+          'Create User'
+        )}
       </CButton>
 
-      <CButton type="button" color="secondary" onClick={onReset} className="ms-2">
+      <CButton type="button" color="secondary" onClick={onReset} className="ms-2" disabled={saving}>
         Reset
       </CButton>
     </CForm>
