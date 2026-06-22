@@ -14,26 +14,33 @@ menu dinamis, pengaturan perusahaan, dashboard ringkas, serta dokumentasi OpenAP
 - Respons API yang konsisten
 - Dokumentasi Swagger/OpenAPI
 - Penanganan error dan validasi terpusat di frontend
+- Deployment Docker (reverse proxy, backend, frontend — tiga container terpisah)
 
 ## Teknologi
 
 | Bagian | Teknologi |
 | --- | --- |
-| Backend | Laravel 12, PHP 8.2+, Laravel Sanctum |
+| Backend | Laravel 12, PHP 8.3+, Laravel Sanctum |
 | Frontend | React 19, Vite 7, Redux, CoreUI |
 | API Docs | L5 Swagger / OpenAPI |
 | Database | MySQL, MariaDB, atau SQLite |
+| Deployment | Docker, Nginx reverse proxy |
 
 ## Struktur Proyek
 
 ```text
 react-cms/
-├── backend/    Laravel REST API dan Swagger
-├── frontend/   React CMS application
+├── backend/          Laravel REST API dan Swagger
+├── frontend/         React CMS application
+├── nginx/            Reverse proxy configuration
+├── docker-compose.yml
+├── .env              Docker environment variables
 └── README.md
 ```
 
 ## Persyaratan
+
+### Development Lokal
 
 - PHP 8.2 atau lebih baru
 - Composer 2
@@ -41,7 +48,15 @@ react-cms/
 - npm
 - Database yang didukung Laravel
 
-## Instalasi
+### Docker Deployment
+
+- Docker Engine 24+
+- Docker Compose v2
+- Database MySQL/MariaDB yang sudah berjalan (eksternal)
+
+---
+
+## Instalasi Development Lokal
 
 ### 1. Backend
 
@@ -87,12 +102,101 @@ npm ci
 npm start
 ```
 
-Frontend tersedia di `http://localhost:3000`.
+Frontend tersedia di `http://localhost:3000`. Vite secara otomatis mem-proxy
+request `/api` ke backend di `http://localhost:8000`.
 
-Konfigurasi alamat API frontend saat ini berada di
-`frontend/src/services/api.js`. Pastikan nilainya mengarah ke backend yang aktif.
+---
 
-## URL Pengembangan
+## Deployment Docker
+
+Database diasumsikan sudah berjalan sebagai container terpisah dan tidak menjadi
+bagian dari stack ini. Contoh: `mysql-container` atau `mariadb-container`.
+
+### Arsitektur
+
+```text
+Internet
+    │
+    ▼
+ Nginx Reverse Proxy (port 80)
+    │
+    ├── /       → Frontend Container (React SPA)
+    │
+    └── /api/*  → Backend Container (Laravel)
+                       │
+                       ▼
+                 External Database
+              (mysql-container:3306)
+```
+
+### Konfigurasi
+
+Salin dan sesuaikan `.env` di root proyek:
+
+```bash
+nano .env
+```
+
+Isi minimal yang harus disesuaikan:
+
+```dotenv
+APP_URL=http://your-domain.com
+DB_HOST=mysql-container
+DB_PORT=3306
+DB_DATABASE=react_cms
+DB_USERNAME=root
+DB_PASSWORD=your-db-password
+ADMIN_PASSWORD=your-admin-password
+```
+
+### Menjalankan
+
+```bash
+# Build dan jalankan semua service
+docker compose up -d --build
+
+# Cek status
+docker compose ps
+
+# Lihat logs
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f nginx
+```
+
+### Menghentikan
+
+```bash
+docker compose down
+```
+
+### Restart
+
+```bash
+docker compose restart
+```
+
+### Update (setelah git pull)
+
+```bash
+docker compose down
+docker compose up -d --build
+```
+
+### Service dan Port
+
+| Service | Container Name | Host Port | Internal |
+| --- | --- | --- | --- |
+| Nginx Reverse Proxy | `react-cms-proxy` | `80` | — |
+| Backend | `react-cms-backend` | `9001` | `80` |
+| Frontend | `react-cms-frontend` | `9002` | `80` |
+
+Port backend (`9001`) dan frontend (`9002`) diekspos untuk debugging; di
+production cukup gunakan port `80` melalui reverse proxy.
+
+---
+
+## URL Development
 
 | Layanan | URL |
 | --- | --- |
@@ -102,9 +206,19 @@ Konfigurasi alamat API frontend saat ini berada di
 | Swagger UI alternatif | `http://127.0.0.1:8000/api/documentation` |
 | API base URL | `http://127.0.0.1:8000/api` |
 
+## URL Docker
+
+| Layanan | URL |
+| --- | --- |
+| Aplikasi | `http://localhost` |
+| API | `http://localhost/api` |
+| Swagger | `http://localhost/api/documentation` |
+
 Di Swagger, jalankan endpoint login, salin token yang diterima, lalu gunakan
 tombol **Authorize** dengan bearer token tersebut untuk menguji endpoint
 terproteksi.
+
+---
 
 ## Verifikasi
 
@@ -123,11 +237,15 @@ npm run lint
 npm run build
 ```
 
+---
+
 ## Dokumentasi
 
 - [Panduan backend](backend/README.md)
 - [Panduan frontend](frontend/README.md)
 - [Panduan deployment production](backend/docs/production-deployment.md)
+
+---
 
 ## Production
 
@@ -143,5 +261,7 @@ npm ci
 npm run build
 ```
 
-Hasil build berada di `frontend/dist`.
+Hasil build berada di `frontend/build`.
 
+Untuk deployment Docker production, gunakan `.env` root dengan `APP_ENV=production`
+dan `APP_DEBUG=false`, lalu jalankan `docker compose up -d --build`.

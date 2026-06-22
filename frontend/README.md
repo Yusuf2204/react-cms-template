@@ -24,20 +24,37 @@ npm install
 
 ## Konfigurasi API
 
-Alamat backend saat ini dikonfigurasi di:
+Alamat API dikonfigurasi di `src/services/api.js`. Base URL menggunakan `/api`
+agar deployment tetap portabel di berbagai environment.
 
-```text
-src/services/api.js
+```js
+// src/services/api.js
+const api = axios.create({
+  baseURL: '/api',
+})
 ```
 
-Untuk development lokal, pastikan base URL mengarah ke:
+### Saat Development Lokal
 
-```text
-http://localhost:8000/api
+Vite development server secara otomatis mem-proxy request `/api` ke backend
+lokal. Konfigurasi proxy ada di `vite.config.mjs`:
+
+```js
+server: {
+  port: 3000,
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8000',
+      changeOrigin: true,
+    },
+  },
+},
 ```
 
-Sesuaikan alamat tersebut sebelum membuat build untuk staging atau production.
-CORS backend juga harus mengizinkan origin frontend yang digunakan.
+### Saat Deploy dengan Docker
+
+Tidak diperlukan konfigurasi tambahan — Nginx reverse proxy akan meneruskan
+request `/api` ke backend container secara otomatis.
 
 ## Menjalankan Development Server
 
@@ -55,6 +72,7 @@ Aplikasi tersedia di `http://localhost:3000`.
 | `npm run build` | Membuat production build |
 | `npm run lint` | Menjalankan ESLint |
 | `npm run preview` | Meninjau hasil production build |
+| `npm run serve` | Menjalankan Vite preview server |
 
 ## Struktur Utama
 
@@ -112,6 +130,46 @@ Frontend menyediakan:
 - Company branding untuk title, logo, dan favicon
 - Upload gambar company dalam format Base64
 
+---
+
+## Deployment Docker
+
+Frontend dibangun dengan **multi-stage Docker build**: Node.js 22 untuk build,
+Nginx Alpine untuk runtime.
+
+### Struktur File
+
+```text
+frontend/
+├── Dockerfile       # Multi-stage: Node 22 build → Nginx Alpine runtime
+├── nginx.conf       # Nginx config untuk SPA (static + fallback)
+└── .dockerignore
+```
+
+### Build
+
+```bash
+# dari root proyek
+docker compose build frontend
+```
+
+Proses build:
+1. `npm ci` — install dependencies
+2. `npm run build` — produksi React build ke `build/`
+3. Copy hasil build ke Nginx Alpine
+4. Sajikan melalui Nginx di port 80 dengan SPA fallback
+
+### Konfigurasi Nginx Internal
+
+Nginx di dalam container frontend menangani:
+
+- SPA fallback: semua route yang tidak cocok diarahkan ke `index.html`
+- Gzip compression untuk aset statis
+- Cache header untuk aset di `/assets/`
+- Security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`)
+
+---
+
 ## Build Production
 
 ```bash
@@ -123,12 +181,12 @@ npm run build
 Hasil build berada di folder:
 
 ```text
-dist/
+build/
 ```
 
 Deploy isi folder tersebut menggunakan web server yang mendukung SPA fallback
-ke `index.html`. Pastikan konfigurasi API dan CORS sudah menggunakan domain
-production sebelum build dibuat.
+ke `index.html`. Untuk deployment Docker, proses build sudah ditangani otomatis
+oleh Dockerfile.
 
 ## Verifikasi Sebelum Release
 
