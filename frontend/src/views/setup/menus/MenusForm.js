@@ -16,8 +16,18 @@ const MenusForm = ({ menu, menus, onReset, onSaved }) => {
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState({})
 
+  const getDescendantIds = (parentId, list) => {
+    let ids = [parentId]
+    const children = list.filter((m) => Number(m.menu_parent_id) === Number(parentId))
+    children.forEach((c) => {
+      ids = ids.concat(getDescendantIds(c.id, list))
+    })
+    return ids
+  }
+
+  const disallowedIds = menu ? getDescendantIds(menu.id, menus) : []
   const parentOptions = menus
-    .filter((m) => !menu || m.id !== menu.id)
+    .filter((m) => !disallowedIds.includes(m.id))
     .map((m) => ({
       value: m.id,
       label: m.menu_name,

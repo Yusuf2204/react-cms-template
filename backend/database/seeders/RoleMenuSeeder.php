@@ -15,39 +15,35 @@ class RoleMenuSeeder extends Seeder
         $user  = Roles::where('role_name', 'user')->first();
 
         // ===== ADMIN → semua menu =====
-        $menus = Menus::all();
+        if ($admin) {
+            $menus = Menus::all();
+            RoleMenus::where('role_id', $admin->id)->delete();
 
-        foreach ($menus as $menu) {
-            RoleMenus::firstOrCreate([
-                'role_id' => $admin->id,
-                'menu_id' => $menu->id,
-            ]);
+            foreach ($menus as $menu) {
+                RoleMenus::firstOrCreate([
+                    'role_id' => $admin->id,
+                    'menu_id' => $menu->id,
+                ]);
+            }
         }
 
         // ===== USER → limited but structural =====
+        if ($user) {
+            $userMenuPaths = [
+                '/dashboard',
+                '/setup',
+                '/setup/change-password',
+            ];
 
-        // wajib ada dashboard
-        $dashboard = Menus::where('menu_path', '/dashboard')->first();
+            $userMenuIds = Menus::whereIn('menu_path', $userMenuPaths)->pluck('id')->all();
 
-        // parent setup
-        $setup = Menus::where('menu_path', '/setup')->first();
-
-        // child permission
-        $changePassword = Menus::where('menu_path', '/setup/change-password')->first();
-
-        $userMenus = [
-            $dashboard,
-            $setup,
-            $changePassword,
-        ];
-
-        foreach ($userMenus as $menu) {
-            if (!$menu) continue;
-
-            RoleMenus::firstOrCreate([
-                'role_id' => $user->id,
-                'menu_id' => $menu->id,
-            ]);
+            RoleMenus::where('role_id', $user->id)->delete();
+            foreach ($userMenuIds as $menuId) {
+                RoleMenus::firstOrCreate([
+                    'role_id' => $user->id,
+                    'menu_id' => $menuId,
+                ]);
+            }
         }
     }
 }

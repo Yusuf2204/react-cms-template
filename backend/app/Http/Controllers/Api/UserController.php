@@ -70,7 +70,15 @@ class UserController extends Controller
         ]);
     }
 
-    public function destroy($id) {
+    public function destroy(Request $request, $id) {
+        if ((int) $id === (int) ($request->user()?->id ?? Auth::id())) {
+            return response()->json([
+                'data' => null,
+                'message' => 'You cannot delete your own account.',
+                'errors' => ['user' => ['You cannot delete your own account.']],
+            ], 422);
+        }
+
         User::findOrFail($id)->delete();
 
         return response()->json([
@@ -88,13 +96,13 @@ class UserController extends Controller
             'confirm_password' => 'required|same:new_password',
         ]);
 
-        $user = Auth::user();
+        $user = $request->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'data' => null,
                 'message' => 'Current password is incorrect',
-                'errors' => ['current_password' => 'Wrong password'],
+                'errors' => ['current_password' => ['Wrong password']],
             ], 422);
         }
 

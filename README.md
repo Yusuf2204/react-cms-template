@@ -131,9 +131,10 @@ Internet
 
 ### Konfigurasi
 
-Salin dan sesuaikan `.env` di root proyek:
+Salin template environment ke `.env` di root proyek:
 
 ```bash
+cp .env.example .env
 nano .env
 ```
 

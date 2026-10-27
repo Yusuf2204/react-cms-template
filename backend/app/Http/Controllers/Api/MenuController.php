@@ -19,13 +19,21 @@ class MenuController extends Controller
 
     public function store(Request $request)
     {
-        $menu = Menus::create($request->all());
+        $data = $request->validate([
+            'menu_name' => 'required|string|max:255',
+            'menu_path' => 'required|string|max:255|unique:menus,menu_path',
+            'menu_icon' => 'nullable|string|max:100',
+            'menu_parent_id' => 'nullable|exists:menus,id',
+            'menu_order' => 'nullable|integer',
+        ]);
+
+        $menu = Menus::create($data);
 
         return response()->json([
             'data' => $menu,
             'message' => 'Created',
-            'errors' => null
-        ]);
+            'errors' => null,
+        ], 201);
     }
 
     public function show($id)
@@ -33,19 +41,36 @@ class MenuController extends Controller
         return response()->json([
             'data' => Menus::with('parent')->findOrFail($id),
             'message' => 'OK',
-            'errors' => null
+            'errors' => null,
         ]);
     }
 
     public function update(Request $request, $id)
     {
         $menu = Menus::findOrFail($id);
-        $menu->update($request->all());
+
+        $data = $request->validate([
+            'menu_name' => 'required|string|max:255',
+            'menu_path' => 'required|string|max:255|unique:menus,menu_path,'.$id,
+            'menu_icon' => 'nullable|string|max:100',
+            'menu_parent_id' => [
+                'nullable',
+                'exists:menus,id',
+                function ($attribute, $value, $fail) use ($id) {
+                    if ((int) $value === (int) $id) {
+                        $fail('A menu cannot be its own parent.');
+                    }
+                },
+            ],
+            'menu_order' => 'nullable|integer',
+        ]);
+
+        $menu->update($data);
 
         return response()->json([
             'data' => $menu,
             'message' => 'Updated',
-            'errors' => null
+            'errors' => null,
         ]);
     }
 

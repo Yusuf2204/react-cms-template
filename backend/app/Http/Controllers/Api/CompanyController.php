@@ -10,22 +10,36 @@ class CompanyController extends Controller
 {
     public function show()
     {
+        $company = Company::firstOrCreate(
+            ['id' => 1],
+            [
+                'comp_name' => 'CMS Template',
+                'app_title' => 'CMS Template',
+            ]
+        );
+
         return response()->json([
-            'data' => Company::first(),
+            'data' => $company,
             'message' => 'OK',
-            'errors' => null
+            'errors' => null,
         ]);
     }
 
     public function update(Request $request)
     {
-        $company = Company::first();
+        $company = Company::firstOrCreate(
+            ['id' => 1],
+            [
+                'comp_name' => 'CMS Template',
+                'app_title' => 'CMS Template',
+            ]
+        );
 
         $data = $request->validate([
-            'comp_name' => 'required',
-            'comp_logo' => 'nullable',
-            'fav_icon' => 'nullable',
-            'app_title' => 'nullable',
+            'comp_name' => 'required|string|max:255',
+            'comp_logo' => 'nullable|string',
+            'fav_icon' => 'nullable|string',
+            'app_title' => 'nullable|string|max:255',
         ]);
 
         $company->update($data);
@@ -33,7 +47,7 @@ class CompanyController extends Controller
         return response()->json([
             'data' => $company,
             'message' => 'Updated',
-            'errors' => null
+            'errors' => null,
         ]);
     }
 }

@@ -25,22 +25,39 @@ const RolepermissionsForm = ({ role }) => {
     loadData()
   }, [loadData])
 
-  // recursive toggle
-  const toggleMenu = (list, id) =>
-    list.map((menu) => {
-      if (menu.id === id) {
-        return { ...menu, checked: !menu.checked }
-      }
+  // recursive toggle with parent-child cascade
+  const toggleAll = (nodes, checked) =>
+    nodes.map((node) => ({
+      ...node,
+      checked,
+      children: node.children?.length ? toggleAll(node.children, checked) : node.children,
+    }))
 
-      if (menu.children?.length) {
+  const toggleMenu = (nodes, targetId) => {
+    return nodes.map((node) => {
+      if (node.id === targetId) {
+        const nextChecked = !node.checked
         return {
-          ...menu,
-          children: toggleMenu(menu.children, id),
+          ...node,
+          checked: nextChecked,
+          children: node.children?.length ? toggleAll(node.children, nextChecked) : node.children,
         }
       }
 
-      return menu
+      if (node.children?.length) {
+        const updatedChildren = toggleMenu(node.children, targetId)
+        const hasCheckedChild = updatedChildren.some((child) => child.checked)
+
+        return {
+          ...node,
+          checked: hasCheckedChild ? true : node.checked,
+          children: updatedChildren,
+        }
+      }
+
+      return node
     })
+  }
 
   const toggle = (id) => {
     setMenus((prev) => toggleMenu(prev, id))

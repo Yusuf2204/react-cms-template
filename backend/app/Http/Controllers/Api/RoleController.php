@@ -51,7 +51,17 @@ class RoleController extends Controller
 
     public function destroy($id)
     {
-        Roles::findOrFail($id)->delete();
+        $role = Roles::findOrFail($id);
+
+        if ($role->role_name === 'admin' || (int) $role->id === 1) {
+            return response()->json([
+                'data' => null,
+                'message' => 'The default admin role cannot be deleted.',
+                'errors' => ['role' => ['The default admin role cannot be deleted.']],
+            ], 422);
+        }
+
+        $role->delete();
 
         return response()->json([
             'data' => null,

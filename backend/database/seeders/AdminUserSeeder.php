@@ -12,9 +12,9 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $email = env('ADMIN_EMAIL');
-        $password = env('ADMIN_PASSWORD');
-        $name = env('ADMIN_NAME', 'Administrator');
+        $email = config('auth.admin.email') ?: env('ADMIN_EMAIL');
+        $password = config('auth.admin.password') ?: env('ADMIN_PASSWORD');
+        $name = config('auth.admin.name') ?: env('ADMIN_NAME', 'Administrator');
 
         if (! $email || ! $password) {
             $this->command?->warn('Admin user skipped: ADMIN_EMAIL and ADMIN_PASSWORD are required.');

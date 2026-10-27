@@ -7,6 +7,7 @@ use App\Models\RoleMenus;
 use App\Models\Roles;
 use App\Services\NavigationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RoleMenuController extends Controller
 {
@@ -32,14 +33,16 @@ class RoleMenuController extends Controller
             'menu_ids.*' => 'integer|exists:menus,id',
         ]);
 
-        RoleMenus::where('role_id', $roleId)->delete();
+        DB::transaction(function () use ($roleId, $data) {
+            RoleMenus::where('role_id', $roleId)->delete();
 
-        foreach ($data['menu_ids'] ?? [] as $menuId) {
-            RoleMenus::create([
-                'role_id' => $roleId,
-                'menu_id' => $menuId,
-            ]);
-        }
+            foreach ($data['menu_ids'] ?? [] as $menuId) {
+                RoleMenus::create([
+                    'role_id' => $roleId,
+                    'menu_id' => $menuId,
+                ]);
+            }
+        });
 
         return response()->json([
             'data' => true,

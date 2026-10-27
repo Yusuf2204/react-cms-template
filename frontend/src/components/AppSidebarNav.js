@@ -8,8 +8,6 @@ import 'simplebar-react/dist/simplebar.min.css'
 import { CBadge, CNavLink, CSidebarNav, CNavItem, CNavGroup } from '@coreui/react'
 
 export const AppSidebarNav = ({ items }) => {
-  4
-
   const componentMap = {
     CNavItem,
     CNavGroup,
